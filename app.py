@@ -3,18 +3,20 @@ from flask import Flask, render_template, request
 
 # > Application improvements
 # TODO: user authentication
-# TODO: persistent storage
+# [DONE]: persistent storage
 # TODO: logging
 # TODO: environment configuration
 # TODO: secrets
 # TODO: docker
 
 # > AI improvements
+# TODO: make it not bullshit (impossible)
 # TODO: message sizes restrictions
 # TODO: memory time relation
 # TODO: remove memories
 # TODO: embeddings search threshold
-# TODO: make it not bullshit (impossible)
+# [DONE]: multilanguage
+# TODO: reminders (notifications)?
 
 app = Flask(__name__)
 messages = []

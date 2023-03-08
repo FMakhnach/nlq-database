@@ -3,12 +3,9 @@ import openai
 from sentence_transformers import SentenceTransformer, util
 import torch
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+from storage import MemoryStorage
 
-# tmp
-storage = {
-    # '<user_id>': [<list of memories>]
-}
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 class Conversation:
@@ -18,6 +15,7 @@ class Conversation:
     embedder = SentenceTransformer('all-MiniLM-L6-v2')
 
     def __init__(self, user_id):
+        self.user_id = user_id
         self.memories = []
         self.memories_embeddings = torch.Tensor([])
         self.__load_memories(user_id)
@@ -30,11 +28,10 @@ class Conversation:
             return self.__confirm_memory_saved(prompt)
 
     def __load_memories(self, user_id):
-        # TODO: persistence
-        if user_id in storage:
-            self.memories = storage[user_id]  # careful - now it is synced to storage (intentionally)
-        else:
-            self.memories = storage[user_id] = []
+        memories_from_db = MemoryStorage.get_memories(user_id)
+        if memories_from_db and len(memories_from_db) > 0:
+            self.memories = [x['memory'] for x in MemoryStorage.get_memories(user_id)]
+            self.memories_embeddings = Conversation.embedder.encode(self.memories, convert_to_tensor=True)
 
     def __try_ask_based_on_memories(self, prompt: str) -> str:
         closest_memories = self.__find_semantically_close_memories(prompt)
@@ -64,6 +61,7 @@ class Conversation:
         self.memories.append(prompt)
         new_memory_embedding = Conversation.embedder.encode(prompt, convert_to_tensor=True).unsqueeze(0)
         self.memories_embeddings = torch.cat((self.memories_embeddings, new_memory_embedding))
+        MemoryStorage.add_memory(prompt, self.user_id)
 
     def __is_question(self, prompt: str) -> bool:
         the_prompt = f'Is it a question: "{prompt}"? ' \
@@ -75,9 +73,10 @@ class Conversation:
 
     def __no_memories_found(self, prompt: str) -> str:
         the_prompt = f'The user asks you this: "{prompt}". ' \
-                     f'But you haven\'t found anything related, what user might have told you earlier. ' \
-                     f'Answer the user only using basic general facts. ' \
-                     f'If it is not enough for proper answer, indicate it.'
+                     'But you haven\'t found anything related, what user might have told you earlier. ' \
+                     'Answer the user only using basic general facts. ' \
+                     'If it is not enough for proper answer, indicate it. ' \
+                     'Use language of the users request.'
         response = self.__ask_ai(the_prompt)
         print('no_memories_found:', response)
         return response
@@ -87,14 +86,16 @@ class Conversation:
         for memory in relevant_memories:
             the_prompt += f'* {memory}\n'
         the_prompt += f'Using this information, answer the following user request: "{prompt}". ' \
-                      f'Don\'t make anything up, use only this info + basic general knowledge.'
+                      'Don\'t make anything up, use only this info + basic general knowledge.' \
+                      'Use language of the users request.'
         response = self.__ask_ai(the_prompt)
         print('answer_based_on_memories:', response)
         return response
 
     def __confirm_memory_saved(self, prompt: str):
         the_prompt = f'You are a personal assistant. The user just told you "{prompt}".' \
-                     f'Answer as if you\'ve written it down / saved / remembered what he told you.'
+                     f'Answer as if you\'ve written it down / saved / remembered what he told you. ' \
+                     'Use language of the users request.'
         response = self.__ask_ai(the_prompt)
         print('confirm_memory_saved:', response)
         return response
