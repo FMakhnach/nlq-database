@@ -1,0 +1,125 @@
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Body */
+body {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  background-color: #e5e5e5;
+}
+
+/* Container */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Chatbox */
+.chatbox {
+  width: 600px;
+  height: 900px;
+  background-color: #fff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80px;
+  background-color: #0077c2;
+  color: #fff;
+}
+
+.header h1 {
+  font-family: 'Roboto', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* Message list */
+.message-list {
+  flex: 1;
+  padding: 20px;
+  overflow-y: scroll;
+}
+
+.message {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.message.bot {
+  justify-content: flex-end;
+}
+
+.message p {
+  max-width: 80%;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #f1f0f0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.message.bot p {
+  background-color: #0077c2;
+  color: #fff;
+}
+
+/* Input box */
+.input-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 60px;
+  padding: 10px;
+  background-color: #fff;
+}
+
+.input-box input[type="text"] {
+  flex: 1;
+  height: 40px;
+  padding: 10px;
+  border: none;
+  border-radius: 20px;
+  background-color: #f1f0f0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+}
+
+.input-box input[type="text"]:focus {
+  outline: none;
+  box-shadow: 0 0 5px #0077c2;
+}
+
+.input-box button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 20px;
+  background-color: #0077c2;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  justify-content: flex-end;
+}
+
+.input-box button:hover {
+  background-color: #005fa8;
+}
