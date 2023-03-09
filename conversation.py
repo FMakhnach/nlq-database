@@ -52,8 +52,10 @@ class Conversation:
         for hit in hits:
             hit_id = hit['corpus_id']
             memory = self.memories[hit_id]
-            closest_memories.append(memory)
-            print("-", memory, "(Score: {:.4f})".format(hit['score']))
+            is_really_relevant = hit['score'] > 0.1
+            print("-", memory, f"(Score: {hit['score']:.4f}) {'' if is_really_relevant else 'DISCARDED'}")
+            if is_really_relevant:
+                closest_memories.append(memory)
 
         return closest_memories
 
@@ -100,7 +102,7 @@ class Conversation:
         print('confirm_memory_saved:', response)
         return response
 
-    def __ask_ai(self, prompt: str, max_tokens: int = 100) -> str:
+    def __ask_ai(self, prompt: str, max_tokens: int = 1000) -> str:
         response = openai.Completion.create(
             model=Conversation.MODEL_NAME,
             prompt=prompt,
