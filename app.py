@@ -11,7 +11,7 @@ from flask import Flask, render_template, request
 
 # > AI improvements
 # TODO: make it not bullshit (impossible)
-# TODO: make it remember itself
+# [DONE]: make it remember itself
 # TODO: memory summarization
 # TODO: db-side semantic search? https://github.com/pgvector/pgvector
 # TODO: message sizes restrictions

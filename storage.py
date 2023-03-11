@@ -1,10 +1,12 @@
 import psycopg2
 from contextlib import closing
 
+from memory_entity import Memory
+
 
 class MemoryStorage:
     @staticmethod
-    def add_memory(memory: str, user_id: int):
+    def add_memory(memory: str, user_id: int) -> Memory:
         params = {
             'message': memory,
             'user_id': user_id,
@@ -21,12 +23,23 @@ class MemoryStorage:
                         now(),
                         %(user_id)s,
                         %(message)s
-                    );
+                    )
+                    RETURNING
+                        moment,
+                        user_id,
+                        message;
                 """, params)
+                record = cursor.fetchone()
+                memory = Memory(
+                    moment=record[0],
+                    user_id=record[1],
+                    memory=record[2],
+                )
                 conn.commit()
+                return memory
 
     @staticmethod
-    def get_memories(user_id: int):
+    def get_memories(user_id: int) -> list[Memory]:
         params = {
             'user_id': user_id,
         }
@@ -43,11 +56,11 @@ class MemoryStorage:
                 """, params)
                 records = cursor.fetchall()
                 memories = [
-                    {
-                        'moment': record[1],
-                        'user_id': record[2],
-                        'memory': record[3],
-                    }
+                    Memory(
+                        moment=record[1],
+                        user_id=record[2],
+                        memory=record[3],
+                    )
                     for record in records
                 ]
                 return memories
