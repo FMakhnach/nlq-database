@@ -6,10 +6,11 @@ from memory_entity import Memory
 
 class MemoryStorage:
     @staticmethod
-    def add_memory(memory: str, user_id: int) -> Memory:
+    def add_memory(memory: str, user_id: int, is_user_memory: bool) -> Memory:
         params = {
-            'message': memory,
+            'memory': memory,
             'user_id': user_id,
+            'is_user_memory': is_user_memory,
         }
         with MemoryStorage.__get_connection() as conn:
             with conn.cursor() as cursor:
@@ -17,23 +18,29 @@ class MemoryStorage:
                     INSERT INTO public.memories (
                         moment,
                         user_id,
-                        message
+                        is_user_memory,
+                        memory
                     ) 
                     VALUES (
                         now(),
                         %(user_id)s,
-                        %(message)s
+                        %(is_user_memory)s,
+                        %(memory)s
                     )
                     RETURNING
+                        id,
                         moment,
                         user_id,
-                        message;
+                        is_user_memory,
+                        memory;
                 """, params)
                 record = cursor.fetchone()
                 memory = Memory(
-                    moment=record[0],
-                    user_id=record[1],
-                    memory=record[2],
+                    id=record[0],
+                    moment=record[1],
+                    user_id=record[2],
+                    is_user_memory=record[3],
+                    memory=record[4],
                 )
                 conn.commit()
                 return memory
@@ -50,16 +57,20 @@ class MemoryStorage:
                         id,
                         moment,
                         user_id,
-                        message
+                        is_user_memory,
+                        memory
                     FROM public.memories
-                    WHERE user_id = %(user_id)s;
+                    WHERE user_id = %(user_id)s
+                    ORDER BY moment;
                 """, params)
                 records = cursor.fetchall()
                 memories = [
                     Memory(
+                        id=record[0],
                         moment=record[1],
                         user_id=record[2],
-                        memory=record[3],
+                        is_user_memory=record[3],
+                        memory=record[4],
                     )
                     for record in records
                 ]

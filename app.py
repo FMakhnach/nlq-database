@@ -20,6 +20,7 @@ from flask import Flask, render_template, request
 # [DONE]: embeddings search threshold
 # [DONE]: multilanguage
 # TODO: reminders (notifications)?
+# TODO: validate AI answer and retry?
 
 app = Flask(__name__)
 messages = []
