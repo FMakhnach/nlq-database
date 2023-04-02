@@ -1,0 +1,74 @@
+INFO:telegram.ext._application:Application started
+INFO:root:>> Received prompt: when is my dentist tomorrow?
+INFO:openai:message='Request to OpenAI API' method=post path=https://api.openai.com/v1/completions
+INFO:openai:message='OpenAI API response' path=https://api.openai.com/v1/completions processing_ms=149 response_code=200
+INFO:root:> QUESTION
+INFO:root:> Start looking for story for "when is my dentist tomorrow?"...
+INFO:elastic_transport.transport:POST https://localhost:9200/stories/_search [status:200 duration:0.097s]
+INFO:root:Stories FOUND
+INFO:root:Trying story "dental"
+INFO:openai:message='Request to OpenAI API' method=post path=https://api.openai.com/v1/completions
+INFO:openai:message='OpenAI API response' path=https://api.openai.com/v1/completions processing_ms=387 response_code=200
+INFO:root:Explained prompt: 
+The user wants to know the date and time of their next dentist appointment.
+INFO:openai:message='Request to OpenAI API' method=post path=https://api.openai.com/v1/completions
+INFO:openai:message='OpenAI API response' path=https://api.openai.com/v1/completions processing_ms=3351 response_code=200
+INFO:root:Query is:
+{"query": {"bool": {"must": [{"term": {"user_id": "0"}}, {"term": {"story_name": "dental"}}, {"nested": {"path": "data", "query": {"bool": {"must": [{"term": {"data.type": "dentist"}}, {"range": {"data.time": {"gte": "2023-04-03 00:20:06.354116"}}}]}}}}]}}}
+INFO:elastic_transport.transport:POST https://localhost:9200/facts/_search [status:400 duration:0.036s]
+WARNING:root:Failed to send query to elastic: BadRequestError(400, 'search_phase_execution_exception', 'failed to create query: [nested] failed to find nested object under path [data]')
+INFO:openai:message='Request to OpenAI API' method=post path=https://api.openai.com/v1/completions
+INFO:openai:message='OpenAI API response' path=https://api.openai.com/v1/completions processing_ms=304 response_code=200
+INFO:root:Explained prompt: 
+The user wants to know the date and time of their next dentist appointment.
+INFO:openai:message='Request to OpenAI API' method=post path=https://api.openai.com/v1/completions
+INFO:openai:message='OpenAI API response' path=https://api.openai.com/v1/completions processing_ms=2565 response_code=200
+INFO:root:Query is:
+{"query": {"bool": {"must": [{"term": {"user_id": "0"}}, {"term": {"story_name": "dental"}}, {"nested": {"path": "data", "query": {"bool": {"must": [{"term": {"data.type": "dentist"}}, {"range": {"data.time": {"gte": "2023-04-03 00:20:10.510968"}}}]}}}}]}}}
+INFO:elastic_transport.transport:POST https://localhost:9200/facts/_search [status:400 duration:0.005s]
+WARNING:root:Failed to send query to elastic: BadRequestError(400, 'search_phase_execution_exception', 'failed to create query: [nested] failed to find nested object under path [data]')
+INFO:openai:message='Request to OpenAI API' method=post path=https://api.openai.com/v1/completions
+INFO:openai:message='OpenAI API response' path=https://api.openai.com/v1/completions processing_ms=427 response_code=200
+INFO:root:Explained prompt: 
+The user wants to know the date and time of their next dentist appointment.
+INFO:openai:message='Request to OpenAI API' method=post path=https://api.openai.com/v1/completions
+INFO:openai:message='OpenAI API response' path=https://api.openai.com/v1/completions processing_ms=3117 response_code=200
+INFO:root:Query is:
+{"query": {"bool": {"must": [{"term": {"user_id": "0"}}, {"term": {"story_name": "dental"}}, {"nested": {"path": "data", "query": {"bool": {"must": [{"term": {"data.type": "dentist"}}, {"range": {"data.time": {"gte": "2023-04-03 00:20:13.955464"}}}]}}}}]}}}
+INFO:elastic_transport.transport:POST https://localhost:9200/facts/_search [status:400 duration:0.006s]
+WARNING:root:Failed to send query to elastic: BadRequestError(400, 'search_phase_execution_exception', 'failed to create query: [nested] failed to find nested object under path [data]')
+INFO:telegram.ext._application:Application is stopping. This might take a moment.
+INFO:telegram.ext._application:Application.stop() complete
+INFO:telegram.ext._application:Application started
+INFO:root:>> Received prompt: I have a dentist appointment today
+INFO:openai:message='Request to OpenAI API' method=post path=https://api.openai.com/v1/completions
+INFO:openai:message='OpenAI API response' path=https://api.openai.com/v1/completions processing_ms=172 response_code=200
+INFO:root:> STATEMENT
+INFO:root:> Start looking for story for "I have a dentist appointment today"...
+INFO:elastic_transport.transport:POST https://localhost:9200/stories/_search [status:200 duration:0.035s]
+INFO:root:Stories FOUND
+INFO:root:Trying story "dental"
+INFO:openai:message='Request to OpenAI API' method=post path=https://api.openai.com/v1/completions
+INFO:openai:message='OpenAI API response' path=https://api.openai.com/v1/completions processing_ms=587 response_code=200
+INFO:root:Schema "
+---
+appointment:
+  type: object
+  properties:
+    type:
+      type: string
+      enum: [dentist]
+    time:
+      type: string
+      format: date-time" fits
+INFO:root:Got json: "{"type":"dentist","time":"2023-04-03T00:22:55.046084"}"
+INFO:elastic_transport.transport:POST https://localhost:9200/facts/_doc [status:201 duration:0.026s]
+INFO:root:>> Received prompt: I need to buy apples, milk and bread
+INFO:openai:message='Request to OpenAI API' method=post path=https://api.openai.com/v1/completions
+INFO:openai:message='OpenAI API response' path=https://api.openai.com/v1/completions processing_ms=215 response_code=200
+INFO:root:> QUESTION
+INFO:root:> Start looking for story for "I need to buy apples, milk and bread"...
+INFO:elastic_transport.transport:POST https://localhost:9200/stories/_search [status:200 duration:0.011s]
+INFO:root:Stories not found
+INFO:telegram.ext._application:Application is stopping. This might take a moment.
+INFO:telegram.ext._application:Application.stop() complete

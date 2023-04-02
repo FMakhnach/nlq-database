@@ -22,7 +22,7 @@ class Conversation:
             return self.process_statement(prompt)
 
     def answer_question(self, prompt: str) -> str:
-        stories = self.find_relevant_stories(prompt, threshold=0.9)
+        stories = self.find_relevant_stories(prompt, threshold=0.9, try_create=False)
         relevant_facts = None
         for story_found in sorted(stories, key=lambda x: -x.score):
             story = story_found.story
@@ -33,7 +33,8 @@ class Conversation:
                 log.info(f"Explained prompt: {explained_prompt}")
                 try:
                     elastic_query = brain.create_elastic_query(explained_prompt, story)
-                    log.info(f"Query is:\n{elastic_query}")
+                    query_str = str(elastic_query).replace("'", '"')
+                    log.info(f"Query is:\n{query_str}")
                     relevant_facts = elastic.search_facts(elastic_query)
                     break
                 except Exception as err:
@@ -74,7 +75,7 @@ class Conversation:
                 fact_data = json.loads(fact_json)
                 fact = Fact(
                     user_id=self.user_id,
-                    story=story.story_name,
+                    story_name=story.story_name,
                     data=fact_data,
                 )
                 elastic.add_fact(fact)
@@ -83,7 +84,7 @@ class Conversation:
                 log.warning(f'Failed to add data: {err}')
         return None
 
-    def find_relevant_stories(self, prompt: str, threshold: float) -> list[StorySearchResult]:
+    def find_relevant_stories(self, prompt: str, threshold: float, try_create: bool = True) -> list[StorySearchResult]:
         log.info(f'> Start looking for story for "{prompt}"...')
         relevant_stories = elastic.search_relevant_stories(self.user_id, prompt, threshold)
         if len(relevant_stories) > 0:
@@ -91,11 +92,14 @@ class Conversation:
             return relevant_stories
         else:
             log.info(f'Stories not found')
-            new_story = self.create_new_story(prompt)
-            elastic.add_story(new_story)
-            result = StorySearchResult(new_story, score=1.0)
-            log.info(f'Created a new story: name="{new_story.story_name}", schema="{new_story.fact_schema}".')
-            return [result]
+            if try_create:
+                new_story = self.create_new_story(prompt)
+                elastic.add_story(new_story)
+                result = StorySearchResult(new_story, score=1.0)
+                log.info(f'Created a new story: name="{new_story.story_name}", schema="{new_story.fact_schema}".')
+                return [result]
+            else:
+                return []
 
     def create_new_story(self, prompt: str) -> Story:
         story_name = brain.get_short_description(prompt)

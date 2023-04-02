@@ -1,4 +1,13 @@
 from dataclasses import dataclass, asdict
+from enum import Enum
+
+
+class PromptClass(Enum):
+    NOTHING = 1
+    SELECT = 2
+    INSERT = 3
+    UPDATE = 4
+    DELETE = 5
 
 
 @dataclass
@@ -24,5 +33,5 @@ class StorySearchResult:
 @dataclass
 class Fact(ConvertableToDict):
     user_id: str
-    story: str
+    story_name: str
     data: dict

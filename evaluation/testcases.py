@@ -2,34 +2,13 @@ from datetime import datetime, timedelta
 
 testcases = [
     {
-        "title": "General question",
-        "subcases": [
-            {
-                "enabled": False,
-                "title": "PostgreSQL extension",
-                "dialog": [
-                    {
-                        "Q": "Is there any PostgreSQL extension that would allow to store and process timeseries data?",
-                        "A": "Yes, there are some extensions, for example TimescaleDB."
-                    }
-                ]
-            }
-        ]
-    },
-    {
         "title": "Event tied to a point in time",
         "subcases": [
             {
-                #"enabled": False,
                 "title": "Dentist appointment",
                 "dialog": [
                     {
-                        "enabled": False,
-                        "Q": "I need to buy apples, milk, tomatoes and eggs. Write it down.",
-                        "A": "Ok, got it."
-                    },
-                    {
-                        "enabled": False,
+                        #"enabled": False,
                         "Q": "I have a dentist appointment tomorrow at 10 AM.",
                         "A": "Ok, I wrote it down."
                     },
@@ -107,6 +86,20 @@ testcases = [
         ]
     },
     {
+        "title": "General question",
+        "subcases": [
+            {
+                "title": "PostgreSQL extension",
+                "dialog": [
+                    {
+                        "Q": "Is there any PostgreSQL extension that would allow to store and process timeseries data?",
+                        "A": "Yes, there are some extensions, for example TimescaleDB."
+                    }
+                ]
+            }
+        ]
+    },
+    {
         "title": "Periodical events",
         "subcases": [
             {
@@ -127,83 +120,3 @@ testcases = [
         ]
     },
 ]
-
-'''
-
-Write json schema for such a message:
-
-{
-    "user_id": 123456,
-    "appointments": [
-        {
-            "type": "dentist",
-            "date": "2023-03-22",
-            "time": "10:00"
-        }
-    ],
-    "shopping_list": [
-        {"item": "apples", "is_bought": false },
-        {"item": "milk", "is_bought": false },
-        {"item": "tomatoes", "is_bought": true }
-    ],
-    "weights": [
-        {"weight_kg": 78.8, "moment": "2023-03-20T12:37:23"},
-        {"weight_kg": 79.3, "moment": "2023-03-23T10:11:27"},
-        {"weight_kg": 78.8, "moment": "2023-03-20T12:37:23"},
-        {"weight_kg": 79.3, "moment": "2023-03-23T10:11:27"},
-        {"weight_kg": 78.8, "moment": "2023-03-20T12:37:23"},
-        {"weight_kg": 79.3, "moment": "2023-03-23T10:11:27"},
-        {"weight_kg": 78.8, "moment": "2023-03-20T12:37:23"},
-        {"weight_kg": 79.3, "moment": "2023-03-23T10:11:27"},
-        {"weight_kg": 78.8, "moment": "2023-03-20T12:37:23"},
-        {"weight_kg": 79.3, "moment": "2023-03-23T10:11:27"},
-        {"weight_kg": 78.8, "moment": "2023-03-20T12:37:23"},
-        {"weight_kg": 79.3, "moment": "2023-03-23T10:11:27"},
-        {"weight_kg": 78.8, "moment": "2023-03-20T12:37:23"},
-        {"weight_kg": 79.3, "moment": "2023-03-23T10:11:27"},
-        {"weight_kg": 78.8, "moment": "2023-03-20T12:37:23"},
-        {"weight_kg": 79.3, "moment": "2023-03-23T10:11:27"},
-    ]
-}
-
-{
-  "appointments": {
-    "type": "list",
-    "element_type": {
-      "type": "string",
-      "date": "date",
-      "time": "time"
-    }
-  },
-  "shopping_list": {
-      "type": "list",
-      "element_type": {
-        ""
-      }
-    }
-}
-
-{
-    "user_id": 1234,
-    "data": {
-        "appointments": [
-            {
-                "type": "dentist",
-                "date": "2023-03-22",
-                "time": "10:00"
-            }
-        ],
-        "shopping_list": [
-            {"item": "apples", "is_bought": false },
-            {"item": "milk", "is_bought": false },
-            {"item": "tomatoes", "is_bought": true }
-        ],
-        "weights": [
-            {"weight_kg": 78.8, "moment": "2023-03-20T12:37:23"},
-            {"weight_kg": 79.3, "moment": "2023-03-23T10:11:27"},
-        ]
-    }
-}    
-
-'''
-

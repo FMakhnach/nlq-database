@@ -19,8 +19,8 @@ def setup(es):
         }
     }
 
-    es.indices.create(index='schemas', settings=settings, mappings=mappings)
-    es.indices.create(index='facts')
+    es.indices.create(index='stories', settings=settings, mappings=mappings)
+    #es.indices.create(index='facts')
 
 
 def setup2(es):
@@ -157,12 +157,14 @@ print(data)
 #setup(client)
 
 
-mappings = {
-    "properties": {
-        "user_id": {"type": "text"},
-        "category": {"type": "text"},
-        "data": {"type": "object"},
-    }
-}
+# mappings = {
+#     "properties": {
+#         "user_id": {"type": "text"},
+#         "category": {"type": "text"},
+#         "data": {"type": "object"},
+#     }
+# }
+#
+# client.indices.put_mapping(mappings)
 
-client.indices.put_mapping(mappings)
+setup(client)
