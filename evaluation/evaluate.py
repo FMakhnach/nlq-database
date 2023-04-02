@@ -2,11 +2,24 @@ from conversation import Conversation
 from testcases import testcases
 
 logger = print
+{
+    "query": {
+        "bool": {
+            "must": [
+                {"term": {"user_id": "0"}},
+                {"term": {"category": "Appointment"}},
+                {"term": {"data.type": "dentist"}},
+                {"range": {"data.date": {"gte": "2023-03-30", "lte": "2023-03-31"}}},
+                {"range": {"data.time": {"gte": "17:21:47.164609"}}}
+            ]
+        }
+    }
+}
 
 
 def evaluate():
     scores = {}
-    conversation = Conversation(user_id=-42)
+    conversation = Conversation(user_id=0)
     for i, testcase in enumerate(testcases):
         if 'enabled' in testcase and testcase['enabled'] is False:
             continue
