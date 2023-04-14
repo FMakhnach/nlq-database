@@ -72,3 +72,215 @@ INFO:elastic_transport.transport:POST https://localhost:9200/stories/_search [st
 INFO:root:Stories not found
 INFO:telegram.ext._application:Application is stopping. This might take a moment.
 INFO:telegram.ext._application:Application.stop() complete
+INFO:telegram.ext._application:Application started
+INFO:root:>> Received prompt: hello
+INFO:openai:message='Request to OpenAI API' method=post path=https://api.openai.com/v1/completions
+INFO:openai:message='OpenAI API response' path=https://api.openai.com/v1/completions processing_ms=None response_code=401
+INFO:openai:error_code=invalid_api_key error_message='Incorrect API key provided: sk-Xotrg***************************************Mx4u. You can find your API key at https://platform.openai.com/account/api-keys.' error_param=None error_type=invalid_request_error message='OpenAI API error received' stream_error=False
+ERROR:telegram.ext._application:No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\telegram\ext\_application.py", line 1115, in process_update
+    await coroutine
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\telegram\ext\_handler.py", line 141, in handle_update
+    return await self.callback(update, context)
+  File "C:\Users\Fedor\memory\remi-brain\tg_bot.py", line 28, in answer
+    response = Conversation(body['user']).send_message(body['message'])
+  File "C:\Users\Fedor\memory\remi-brain\conversation.py", line 17, in send_message
+    if brain.is_question(prompt):
+  File "C:\Users\Fedor\memory\remi-brain\brain.py", line 10, in is_question
+    response = ai.ask(ai_prompt, task_difficulty=ai.TaskDifficulty.HARD)
+  File "C:\Users\Fedor\memory\remi-brain\openai_client.py", line 21, in ask
+    response = openai.Completion.create(
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\openai\api_resources\completion.py", line 31, in create
+    return super().create(*args, **kwargs)
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\openai\api_resources\abstract\engine_api_resource.py", line 100, in create
+    response, _, api_key = requestor.request(
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\openai\api_requestor.py", line 122, in request
+    resp, got_stream = self._interpret_response(result, stream)
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\openai\api_requestor.py", line 329, in _interpret_response
+    self._interpret_response_line(
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\openai\api_requestor.py", line 362, in _interpret_response_line
+    raise self.handle_error_response(
+openai.error.AuthenticationError: Incorrect API key provided: sk-Xotrg***************************************Mx4u. You can find your API key at https://platform.openai.com/account/api-keys.
+INFO:root:>> Received prompt: hi
+INFO:openai:message='Request to OpenAI API' method=post path=https://api.openai.com/v1/completions
+INFO:telegram.ext._application:Application started
+INFO:root:>> Received prompt: hi
+INFO:openai:message='Request to OpenAI API' method=post path=https://api.openai.com/v1/completions
+INFO:openai:message='OpenAI API response' path=https://api.openai.com/v1/completions processing_ms=None response_code=401
+INFO:openai:error_code=invalid_api_key error_message='Incorrect API key provided: sk-Xotrg***************************************Mx4u. You can find your API key at https://platform.openai.com/account/api-keys.' error_param=None error_type=invalid_request_error message='OpenAI API error received' stream_error=False
+ERROR:telegram.ext._application:No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\telegram\ext\_application.py", line 1115, in process_update
+    await coroutine
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\telegram\ext\_handler.py", line 141, in handle_update
+    return await self.callback(update, context)
+  File "C:\Users\Fedor\memory\remi-brain\tg_bot.py", line 28, in answer
+    response = Conversation(body['user']).send_message(body['message'])
+  File "C:\Users\Fedor\memory\remi-brain\conversation.py", line 17, in send_message
+    if brain.is_question(prompt):
+  File "C:\Users\Fedor\memory\remi-brain\brain.py", line 10, in is_question
+    response = ai.ask(ai_prompt, task_difficulty=ai.TaskDifficulty.HARD)
+  File "C:\Users\Fedor\memory\remi-brain\openai_client.py", line 21, in ask
+    response = openai.Completion.create(
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\openai\api_resources\completion.py", line 31, in create
+    return super().create(*args, **kwargs)
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\openai\api_resources\abstract\engine_api_resource.py", line 100, in create
+    response, _, api_key = requestor.request(
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\openai\api_requestor.py", line 122, in request
+    resp, got_stream = self._interpret_response(result, stream)
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\openai\api_requestor.py", line 329, in _interpret_response
+    self._interpret_response_line(
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\openai\api_requestor.py", line 362, in _interpret_response_line
+    raise self.handle_error_response(
+openai.error.AuthenticationError: Incorrect API key provided: sk-Xotrg***************************************Mx4u. You can find your API key at https://platform.openai.com/account/api-keys.
+INFO:root:>> Received prompt: hell
+INFO:openai:message='Request to OpenAI API' method=post path=https://api.openai.com/v1/completions
+INFO:openai:message='OpenAI API response' path=https://api.openai.com/v1/completions processing_ms=None response_code=401
+INFO:openai:error_code=invalid_api_key error_message='Incorrect API key provided: sk-Xotrg***************************************Mx4u. You can find your API key at https://platform.openai.com/account/api-keys.' error_param=None error_type=invalid_request_error message='OpenAI API error received' stream_error=False
+ERROR:telegram.ext._application:No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\telegram\ext\_application.py", line 1115, in process_update
+    await coroutine
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\telegram\ext\_handler.py", line 141, in handle_update
+    return await self.callback(update, context)
+  File "C:\Users\Fedor\memory\remi-brain\tg_bot.py", line 28, in answer
+    response = Conversation(body['user']).send_message(body['message'])
+  File "C:\Users\Fedor\memory\remi-brain\conversation.py", line 17, in send_message
+    if brain.is_question(prompt):
+  File "C:\Users\Fedor\memory\remi-brain\brain.py", line 10, in is_question
+    response = ai.ask(ai_prompt, task_difficulty=ai.TaskDifficulty.HARD)
+  File "C:\Users\Fedor\memory\remi-brain\openai_client.py", line 21, in ask
+    response = openai.Completion.create(
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\openai\api_resources\completion.py", line 31, in create
+    return super().create(*args, **kwargs)
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\openai\api_resources\abstract\engine_api_resource.py", line 100, in create
+    response, _, api_key = requestor.request(
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\openai\api_requestor.py", line 122, in request
+    resp, got_stream = self._interpret_response(result, stream)
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\openai\api_requestor.py", line 329, in _interpret_response
+    self._interpret_response_line(
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\openai\api_requestor.py", line 362, in _interpret_response_line
+    raise self.handle_error_response(
+openai.error.AuthenticationError: Incorrect API key provided: sk-Xotrg***************************************Mx4u. You can find your API key at https://platform.openai.com/account/api-keys.
+INFO:telegram.ext._application:Application is stopping. This might take a moment.
+INFO:telegram.ext._application:Application.stop() complete
+INFO:telegram.ext._application:Application started
+INFO:root:>> Received prompt: bibib
+INFO:openai:message='Request to OpenAI API' method=post path=https://api.openai.com/v1/completions
+INFO:openai:message='OpenAI API response' path=https://api.openai.com/v1/completions processing_ms=None response_code=401
+INFO:openai:error_code=invalid_api_key error_message='Incorrect API key provided: sk-Xotrg***************************************Mx4u. You can find your API key at https://platform.openai.com/account/api-keys.' error_param=None error_type=invalid_request_error message='OpenAI API error received' stream_error=False
+ERROR:telegram.ext._application:No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\telegram\ext\_application.py", line 1115, in process_update
+    await coroutine
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\telegram\ext\_handler.py", line 141, in handle_update
+    return await self.callback(update, context)
+  File "C:\Users\Fedor\memory\remi-brain\tg_bot.py", line 28, in answer
+    response = Conversation(body['user']).send_message(body['message'])
+  File "C:\Users\Fedor\memory\remi-brain\conversation.py", line 17, in send_message
+    if brain.is_question(prompt):
+  File "C:\Users\Fedor\memory\remi-brain\brain.py", line 10, in is_question
+    response = ai.ask(ai_prompt, task_difficulty=ai.TaskDifficulty.HARD)
+  File "C:\Users\Fedor\memory\remi-brain\openai_client.py", line 22, in ask
+    response = openai.Completion.create(
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\openai\api_resources\completion.py", line 31, in create
+    return super().create(*args, **kwargs)
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\openai\api_resources\abstract\engine_api_resource.py", line 100, in create
+    response, _, api_key = requestor.request(
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\openai\api_requestor.py", line 122, in request
+    resp, got_stream = self._interpret_response(result, stream)
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\openai\api_requestor.py", line 329, in _interpret_response
+    self._interpret_response_line(
+  File "C:\Users\Fedor\memory\remi-brain\venv\lib\site-packages\openai\api_requestor.py", line 362, in _interpret_response_line
+    raise self.handle_error_response(
+openai.error.AuthenticationError: Incorrect API key provided: sk-Xotrg***************************************Mx4u. You can find your API key at https://platform.openai.com/account/api-keys.
+INFO:telegram.ext._application:Application is stopping. This might take a moment.
+INFO:telegram.ext._application:Application.stop() complete
+INFO:telegram.ext._application:Application started
+INFO:root:>> Received prompt: lalala
+INFO:root:> STATEMENT
+INFO:root:> Start looking for story for "lalala"...
+INFO:elastic_transport.transport:POST https://localhost:9200/stories/_search [status:200 duration:0.699s]
+INFO:root:Stories not found
+INFO:elastic_transport.transport:POST https://localhost:9200/stories/_doc [status:201 duration:0.189s]
+INFO:root:Created a new story: name="this user's statement is a sentence", schema="
+---
+type: object
+properties:
+  text:
+    type: string
+  language:
+    type: string
+  created_at:
+    type: datetime".
+INFO:root:Trying story "this user's statement is a sentence"
+INFO:root:Schema "
+---
+type: object
+properties:
+  text:
+    type: string
+  language:
+    type: string
+  created_at:
+    type: datetime" fits
+INFO:root:Got json: "{"text":"lalala","language":"","created_at":"2023-04-12T22:40:59.140882Z"}"
+INFO:elastic_transport.transport:POST https://localhost:9200/facts/_doc [status:201 duration:0.144s]
+INFO:root:>> Received prompt: when is my dentist tomorrow?
+INFO:root:> QUESTION
+INFO:root:> Start looking for story for "when is my dentist tomorrow?"...
+INFO:elastic_transport.transport:POST https://localhost:9200/stories/_search [status:200 duration:0.025s]
+INFO:root:Stories FOUND
+INFO:root:Trying story "this user's statement is a sentence"
+INFO:root:Explained prompt: 
+The user wants to know the date and time of their next dentist appointment.
+INFO:root:Query is:
+{"query": {"bool": {"must": [{"term": {"user_id": "789619218"}}, {"term": {"story_name": "this user"s statement is a sentence"}}, {"range": {"data.created_at": {"gte": "2023-04-12 22:41:27.063319"}}}]}}}
+INFO:elastic_transport.transport:POST https://localhost:9200/facts/_search [status:400 duration:0.463s]
+WARNING:root:Failed to send query to elastic: BadRequestError(400, 'search_phase_execution_exception', 'failed to parse date field [2023-04-12 22:41:27.063319] with format [strict_date_optional_time||epoch_millis]: [failed to parse date field [2023-04-12 22:41:27.063319] with format [strict_date_optional_time||epoch_millis]]')
+INFO:root:Explained prompt: 
+The user wants to know the date and time of their next dentist appointment.
+INFO:root:Query is:
+{"query": {"bool": {"must": [{"term": {"user_id": "789619218"}}, {"term": {"story_name": "this user"s statement is a sentence"}}, {"range": {"data.created_at": {"gte": "2023-04-12 22:41:30.584894"}}}]}}}
+INFO:elastic_transport.transport:POST https://localhost:9200/facts/_search [status:400 duration:0.012s]
+WARNING:root:Failed to send query to elastic: BadRequestError(400, 'search_phase_execution_exception', 'failed to parse date field [2023-04-12 22:41:30.584894] with format [strict_date_optional_time||epoch_millis]: [failed to parse date field [2023-04-12 22:41:30.584894] with format [strict_date_optional_time||epoch_millis]]')
+INFO:root:Explained prompt: 
+The user wants to know the date and time of their next dentist appointment.
+INFO:root:Query is:
+{"query": {"bool": {"must": [{"match": {"user_id": "789619218"}}, {"range": {"data.created_at": {"gte": "2023-04-12 22:41:34.056511"}}}]}}}
+INFO:elastic_transport.transport:POST https://localhost:9200/facts/_search [status:400 duration:0.013s]
+WARNING:root:Failed to send query to elastic: BadRequestError(400, 'search_phase_execution_exception', 'failed to parse date field [2023-04-12 22:41:34.056511] with format [strict_date_optional_time||epoch_millis]: [failed to parse date field [2023-04-12 22:41:34.056511] with format [strict_date_optional_time||epoch_millis]]')
+INFO:root:>> Received prompt: I have a dentist appointment tomorrow at 15
+INFO:root:> STATEMENT
+INFO:root:> Start looking for story for "I have a dentist appointment tomorrow at 15"...
+INFO:elastic_transport.transport:POST https://localhost:9200/stories/_search [status:200 duration:0.065s]
+INFO:root:Stories FOUND
+INFO:root:Trying story "this user's statement is a sentence"
+INFO:root:Schema "
+---
+type: object
+properties:
+  text:
+    type: string
+  language:
+    type: string
+  created_at:
+    type: datetime" fits
+INFO:root:Got json: "{"text":"I have a dentist appointment tomorrow at 15","language":"en","created_at":"2023-04-13 15:00:00"}"
+INFO:elastic_transport.transport:POST https://localhost:9200/facts/_doc [status:400 duration:0.015s]
+WARNING:root:Failed to add data: BadRequestError(400, 'mapper_parsing_exception', "failed to parse field [data.created_at] of type [date] in document with id 'Dkz_docBzh8pHat-dzUt'. Preview of field's value: '2023-04-13 15:00:00'")
+INFO:root:Schema "
+---
+type: object
+properties:
+  text:
+    type: string
+  language:
+    type: string
+  created_at:
+    type: datetime" fits
+INFO:root:Got json: "{"text":"I have a dentist appointment tomorrow at 15","language":"en","created_at":"2023-04-13T15:00:00.000000"}"
+INFO:elastic_transport.transport:POST https://localhost:9200/facts/_doc [status:201 duration:0.024s]
+INFO:telegram.ext._application:Application is stopping. This might take a moment.
+INFO:telegram.ext._application:Application.stop() complete

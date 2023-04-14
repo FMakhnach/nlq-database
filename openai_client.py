@@ -2,7 +2,8 @@ import openai
 from enum import Enum
 
 # openai.api_key = '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'  # os.getenv("OPENAI_API_KEY")
-openai.api_key = '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'  # os.getenv("OPENAI_API_KEY")
+# openai.api_key = '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'  # os.getenv("OPENAI_API_KEY")
+openai.api_key = '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'  # os.getenv("OPENAI_API_KEY")
 
 
 class TaskDifficulty(Enum):
