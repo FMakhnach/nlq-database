@@ -1,5 +1,7 @@
+from audio import ogg_to_text
 import logging
 # import requests
+import os
 from telegram import Update
 from telegram.ext import filters, MessageHandler, ApplicationBuilder, CommandHandler, ContextTypes
 
@@ -18,16 +20,35 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="Hello! Let's start our tests.")
 
 
-async def answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    print(f'RECEIVED: {update.message.text}')
-    body = {
-        'message': update.message.text,
-        'user': update.effective_user.id,
-    }
-    # response = requests.post(api_url + '/send', data=body).json()
-    response = Conversation(body['user']).send_message(body['message'])
-    print(f'RESPONDED: {response}')
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=response)
+async def handle_text_msg(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    message = update.message.text
+    user_id = str(update.effective_user.id)
+    chat_id = update.effective_chat.id
+    response = Conversation(user_id).send_message(message)
+    await context.bot.send_message(chat_id=chat_id, text=response)
+
+
+async def voice_to_text(file_id: str, context: ContextTypes.DEFAULT_TYPE) -> str or None:
+    ogg_file = f'{file_id}.ogg'
+    try:
+        file = await context.bot.get_file(file_id)
+        await file.download_to_drive(ogg_file)
+        text = ogg_to_text(ogg_file)
+        return text
+    finally:
+        if os.path.exists(ogg_file):
+            os.remove(ogg_file)
+
+
+async def handle_voice_msg(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    file_id = update.message.voice.file_id
+    message_text = voice_to_text(file_id, context)
+    if message_text is None:
+        await context.bot.send_message(chat_id=update.effective_chat.id,
+                                       text='Failed to recognize voice message, please contact developer.')
+        return
+    update.message.text = message_text
+    await handle_text_msg(update, context)
 
 
 async def unknown(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -43,8 +64,11 @@ if __name__ == '__main__':
     application.add_handler(start_handler)
 
     # Actual text requests
-    request_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), answer)
+    request_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), handle_text_msg)
     application.add_handler(request_handler)
+
+    voice_handler = MessageHandler(filters.VOICE, handle_voice_msg)
+    application.add_handler(voice_handler)
 
     # Unknown commands
     unknown_handler = MessageHandler(filters.COMMAND, unknown)
