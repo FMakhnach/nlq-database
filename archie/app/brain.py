@@ -1,14 +1,47 @@
 from datetime import datetime
+from enum import Enum
 import json
-from models import Story, PromptClass
-import openai_client as ai
-import utils
+
+from archie.persistence.entities import Memory, Story
+import archie.external.openai_client as openai
+from archie.monitoring.logging import log_function
+import archie.utilities.text as text_utils
 
 
+class PromptClass(Enum):
+    NOTHING = 1
+    SELECT = 2
+    INSERT = 3
+    UPDATE = 4
+    DELETE = 5
+
+
+def respond(prompt: str, memories: list[Memory]) -> str:
+    ai_prompt = f"""You are a personal AI chat-bot assistant. Answer user's prompt: "{prompt}". """
+    additional_info = []
+    if memories is not None and len(memories) > 0:
+        memories_chat = '\n'.join([str(m) for m in memories])
+        additional_info.append(f"""
+- Last messages.
+```
+{memories_chat}
+```        
+""")
+
+    if len(additional_info) > 0:
+        ai_prompt += "Below is the information that you can use if necessary."
+        ai_prompt += ''.join(additional_info)
+
+    ai_prompt += "It is extremely important not to make things up. If user's prompt is personal, use only info I provided. If it is not enough, you can request user for details."
+    response = openai.ask(ai_prompt, task_difficulty=openai.TaskDifficulty.HARD)
+    return response
+
+
+@log_function
 def is_question(prompt: str) -> bool:
     ai_prompt = f"""Is it a question or a statement: "{prompt}"? Answer with "question" or "statement"."""
-    response = ai.ask(ai_prompt, task_difficulty=ai.TaskDifficulty.HARD)
-    response = utils.extract_phrase(response)
+    response = openai.ask(ai_prompt, task_difficulty=openai.TaskDifficulty.HARD)
+    response = text_utils.extract_phrase(response)
     if response == 'question':
         return True
     if response == 'statement':
@@ -17,6 +50,7 @@ def is_question(prompt: str) -> bool:
 
 
 # TODO: fit model
+@log_function
 def classify_prompt(prompt: str) -> PromptClass:
     ai_prompt = f"""
 You are NLQ processor. You convert user's natural-language prompt into a database query. First, you need to define, what operation to perform.
@@ -27,8 +61,8 @@ If user asks to delete some previous information, reply with 'delete'.
 If user asks a question, where the answer implies using some previously given information, reply with 'select'.
 Reply with a single word, nothing else.
 """
-    response = ai.ask(ai_prompt, task_difficulty=ai.TaskDifficulty.HARD)
-    response = utils.extract_phrase(response)
+    response = openai.ask(ai_prompt, task_difficulty=openai.TaskDifficulty.HARD)
+    response = text_utils.extract_phrase(response)
     if response == 'nothing':
         return PromptClass.NOTHING
     if response == 'select':
@@ -42,59 +76,77 @@ Reply with a single word, nothing else.
     raise Exception(f'Unexpected prompt class "{response}"')
 
 
-def get_short_description(prompt: str) -> str:
+@log_function
+def generate_story_name(prompt: str) -> str:
     ai_prompt = f"""
 You are a text classifier, you group semantically close texts and give each group a short tag.
 Give a tag to user\'s statement: "{prompt}".
+Be as specific as you can, but keep it short.
 """
-    response = ai.ask(ai_prompt, task_difficulty=ai.TaskDifficulty.LOW)
-    response = utils.extract_phrase(response)
+    response = openai.ask(ai_prompt, task_difficulty=openai.TaskDifficulty.LOW)
+    response = text_utils.extract_phrase(response)
     return response
 
 
+@log_function
+def generate_description(prompt: str) -> str:
+    ai_prompt = f"""
+You are a text analyzer. I give you users message, you explain it to me and describe what it is about and what user wants.  
+Users message is:
+{prompt}
+"""
+    response = openai.ask(ai_prompt, task_difficulty=openai.TaskDifficulty.HARD)
+    response = text_utils.extract_phrase(response)
+    return response
+
+
+@log_function
 def create_fact_schema(prompt: str) -> str:
     ai_prompt = f"""
-You are NLQ processor. You extract data from user natural-language prompt and convert it into structured JSON objects that hold all the info from prompt and that can be used for searching later.
-Write a JSON Typedef schema using YAML that can fit all data from user prompt: "{prompt}".
+You are NLQ processor. You extract all useful data from user natural-language prompt and convert it into structured JSON object.
+Write a JSON Typedef schema that can fit all data from user prompt: "{prompt}".
 Make it brief, but keep as much useful info as you can. Don't create excessive attributes. Don't create root property.
-Don't add description fields.
-Prefer datetime for moment of time representation.
+Don't add description fields. Don't separate date and time for moment of time representation, use datetime.
+Format JSON Typedef in the most compact way - without spaces.
 """
-    response = ai.ask(ai_prompt)
+    response = openai.ask(ai_prompt)
     return response
 
 
+@log_function
 def explain_prompt(prompt: str) -> str:
     ai_prompt = f"""
 User interacts with one NLQ system which converts natural language prompts into database queries.
 User prompt is "{prompt}".
 Explain in a couple of sentences what user wants.
 """
-    response = ai.ask(ai_prompt)
+    response = openai.ask(ai_prompt)
     return response
 
 
+@log_function
 def create_elastic_query(prompt: str, story: Story) -> dict:
     ai_prompt = f"""
 You are NLQ system, you convert user natural language prompts into database queries.
 You are operating ElasticSearch of version 8.6.2. Data is stored in index "facts", documents have this structure:
-{{ "user_id": "{story.user_id}", "story_name": "{story.story_name}", "data": {{}} }}
+{{ "user_id": "{story.user_id}", "story_name": "{story.name}", "data": {{}} }}
 where "data" has structure described by the following Typedef:
 ```
-{story.fact_schema}
+{story.schema}
 ```
 Create DSL query by this user prompt description: "{prompt}". Format query in the most compact way.
 For reference: now is {datetime.now()}.
 """
-    response = ai.ask(ai_prompt)
-    response = utils.extract_json(response)
+    response = openai.ask(ai_prompt)
+    response = text_utils.extract_json(response)
     response = json.loads(response)
     return response
 
 
+@log_function
 def try_create_json_by_schema(prompt: str, schema: str) -> str or None:
     the_prompt = f"""
-Convert user's prompt to JSON with schema described by JSON Typedef (YAML):
+Convert user's prompt to JSON with schema described by JSON Typedef:
 ```
 {schema}
 ```
@@ -102,7 +154,7 @@ User's prompt is: "{prompt}".
 If you cannot fit all data from prompt into the schema, reply "NO". Otherwise return JSON object describing the prompt with given schema. Format JSON in the most compact way.
 For reference: now is {datetime.now()}.
 """
-    response = ai.ask(the_prompt)
-    if utils.extract_phrase(response) == 'no':
+    response = openai.ask(the_prompt)
+    if text_utils.extract_phrase(response) == 'no':
         return None
-    return utils.extract_json(response)
+    return text_utils.extract_json(response)

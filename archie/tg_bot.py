@@ -1,19 +1,12 @@
-from audio import ogg_to_text
-import logging
-# import requests
 import os
 from telegram import Update
 from telegram.ext import filters, MessageHandler, ApplicationBuilder, CommandHandler, ContextTypes
 
-from conversation import Conversation
+from archie.ml.audio import try_recognize_text_from_ogg
+from archie.app.conversation import Conversation
 
 tg_token = '6203226914:AAHsTEQnref0a4kdF7o0sg3Ba3yQtIdWRus'
 api_url = 'http://127.0.0.1:5000/'
-
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -33,7 +26,7 @@ async def voice_to_text(file_id: str, context: ContextTypes.DEFAULT_TYPE) -> str
     try:
         file = await context.bot.get_file(file_id)
         await file.download_to_drive(ogg_file)
-        text = ogg_to_text(ogg_file)
+        text = try_recognize_text_from_ogg(ogg_file)
         return text
     finally:
         if os.path.exists(ogg_file):

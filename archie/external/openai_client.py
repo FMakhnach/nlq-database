@@ -3,7 +3,7 @@ from enum import Enum
 
 # openai.api_key = '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'  # os.getenv("OPENAI_API_KEY")
 # openai.api_key = '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'  # os.getenv("OPENAI_API_KEY")
-openai.api_key = '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'  # os.getenv("OPENAI_API_KEY")
+openai.api_key = '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'  # os.getenv("OPENAI_API_KEY")
 
 
 class TaskDifficulty(Enum):
@@ -22,7 +22,7 @@ def ask(prompt: str,
     response = openai.Completion.create(
         model=task_difficulty.get_model_name(),
         prompt=prompt,
-        temperature=0,
+        temperature=0.5,
         max_tokens=max_tokens,
     )
     return response.choices[0].text

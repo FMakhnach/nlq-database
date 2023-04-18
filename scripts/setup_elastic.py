@@ -16,7 +16,7 @@ def create_memories_index(es: Elasticsearch):
     mappings = {
         "properties": {
             "user_id": {"type": "text"},
-            "is_user": {"type": "boolean"},
+            "is_users": {"type": "boolean"},
             "moment": {"type": "date"},
             "memory": {"type": "text"},
             "embedding": {
@@ -78,8 +78,8 @@ def create_indices():
     data = client.info()
     print(data)
     create_memories_index(client)
-    create_stories_index(client)
-    create_facts_index(client)
+    #create_stories_index(client)
+    #create_facts_index(client)
 
 
 if __name__ == '__main__':

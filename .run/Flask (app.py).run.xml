@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Flask (app.py)" type="Python.FlaskServer" nameIsGenerated="true">
+  <configuration default="false" name="Flask (archie/server_app.py)" type="Python.FlaskServer" nameIsGenerated="true">
     <module name="remi-brain" />
-    <option name="target" value="C:\Users\Fedor\memory\remi-brain\app.py" />
+    <option name="target" value="$PROJECT_DIR$/archie/server_app.py" />
     <option name="targetType" value="PATH" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />

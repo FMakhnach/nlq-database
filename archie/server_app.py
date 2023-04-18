@@ -1,10 +1,11 @@
-from conversation import Conversation
 from flask import Flask, render_template, request
 
+from archie.app.conversation import Conversation
+
 # > Application improvements
-# TODO: user authentication
+# [UNNECESSARY] user authentication
 # [DONE]: persistent storage
-# TODO: logging
+# [DONE]: logging
 # TODO: environment configuration
 # TODO: secrets
 # TODO: docker
@@ -13,7 +14,7 @@ from flask import Flask, render_template, request
 # TODO: make it not bullshit (impossible)
 # [DONE]: make it remember itself
 # TODO: memory summarization
-# TODO: db-side semantic search? https://github.com/pgvector/pgvector
+# [DONE]: db-side semantic search? https://github.com/pgvector/pgvector -- made it on elastic
 # TODO: message sizes restrictions
 # TODO: memory time relation
 # TODO: remove memories
