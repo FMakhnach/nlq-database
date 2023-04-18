@@ -26,6 +26,7 @@ async def voice_to_text(file_id: str, context: ContextTypes.DEFAULT_TYPE) -> str
     try:
         file = await context.bot.get_file(file_id)
         await file.download_to_drive(ogg_file)
+        # TODO language
         text = try_recognize_text_from_ogg(ogg_file)
         return text
     finally:

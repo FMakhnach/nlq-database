@@ -16,23 +16,31 @@ class PromptClass(Enum):
     DELETE = 5
 
 
-def respond(prompt: str, memories: list[Memory]) -> str:
-    ai_prompt = f"""You are a personal AI chat-bot assistant. Answer user's prompt: "{prompt}". """
+def build_response(
+        prompt: str,
+        last_memories: list[Memory] or None,
+        relevant_memories: list[Memory] or None,
+        additional_data: str or None,
+) -> str:
+    ai_prompt = f"""You are a personal AI chat-bot assistant. You need to answer user's prompt: "{prompt}".\n"""
     additional_info = []
-    if memories is not None and len(memories) > 0:
-        memories_chat = '\n'.join([str(m) for m in memories])
-        additional_info.append(f"""
-- Last messages.
-```
-{memories_chat}
-```        
-""")
+
+    if last_memories is not None and len(last_memories) > 0:
+        memories_chat = ''.join(['\n* ' + str(m) for m in last_memories])
+        additional_info.append(f"\n- Your previous conversation:\n```\n{memories_chat}\n```\n""")
+
+    if relevant_memories is not None and len(relevant_memories) > 0:
+        other_memories = ''.join(['\n* ' + str(m) for m in relevant_memories])
+        additional_info.append(f"\n- Some other relevant messages:\n```\n{other_memories}\n```\n""")
+
+    if additional_data is not None and additional_data.strip() != '':
+        additional_info.append(f"\n- Other relevant information:\n{additional_data}\n\n""")
 
     if len(additional_info) > 0:
-        ai_prompt += "Below is the information that you can use if necessary."
+        ai_prompt += "Below is the information that you can use."
         ai_prompt += ''.join(additional_info)
 
-    ai_prompt += "It is extremely important not to make things up. If user's prompt is personal, use only info I provided. If it is not enough, you can request user for details."
+    ai_prompt += f"\nGive an answer to users prompt. Do NOT make things up. Use user's prompt language.\nFor the reference: now is {datetime.now()}."
     response = openai.ask(ai_prompt, task_difficulty=openai.TaskDifficulty.HARD)
     return response
 

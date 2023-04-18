@@ -16,7 +16,7 @@ class Memory(ConvertableToDict):
     memory: str
 
     def __str__(self):
-        user = 'USER' if self.is_users else 'AI BOT'
+        user = 'USER' if self.is_users else 'YOU'
         return f'[{self.moment}] {user}: "{self.memory}"'
 
 

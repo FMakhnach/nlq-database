@@ -17,34 +17,51 @@ class Conversation:
     @log_wrap_function_call
     @log_function
     def send_message(self, prompt: str) -> str:
+        request_start_time = datetime.now()
+
+        # 1. Возьмем последние сообщения
         last_memories = memories_repo.get_last_memories(self.user_id)
-
-        # if brain.is_question(prompt):
-        #     response = self.answer_question(prompt)
-        # else:
-        #     response = self.process_statement(prompt)
-
         last_memories = sorted(last_memories, key=lambda x: x.moment)
-        response = brain.respond(prompt, last_memories)
 
-        self.save_memories(prompt, response)
+        # 2. Возьмем релевантные сообщения
+        relevant_memories = memories_repo.search_relevant_memories(self.user_id, prompt)
+        relevant_memories = [x.memory for x in relevant_memories]
 
-        return response
+        # 3. Дополнительная информация на основе семантического поиска
+        additional_data = None  # self.scrap_information(prompt)
 
-    def save_memories(self, user_prompt: str, ai_response: str):
+        ai_response = brain.build_response(
+            prompt,
+            last_memories,
+            relevant_memories,
+            additional_data)
+
+        self.save_user_memory(prompt, request_start_time)
+        self.save_ai_response(ai_response)
+
+        return ai_response
+
+    def scrap_information(self, prompt: str):
+        if brain.is_question(prompt):
+            return self.answer_question(prompt)
+        else:
+            return self.process_statement(prompt)
+
+    def save_user_memory(self, user_prompt: str, moment):
         user_req_memory = entities.Memory(
             user_id=str(self.user_id),
             is_users=True,
-            moment=datetime.now(),
-            memory=user_prompt,
+            moment=moment,
+            memory=user_prompt.strip(),
         )
         memories_repo.add_memory(user_req_memory)
 
+    def save_ai_response(self, ai_response: str):
         ai_resp_memory = entities.Memory(
             user_id=str(self.user_id),
-            is_users=True,
+            is_users=False,
             moment=datetime.now(),
-            memory=ai_response,
+            memory=ai_response.strip(),
         )
         memories_repo.add_memory(ai_resp_memory)
 

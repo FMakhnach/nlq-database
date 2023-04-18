@@ -32,7 +32,12 @@ def get_last_memories(user_id: str, limit: int = 6) -> list[Memory]:
     return memories
 
 
-def search_relevant_memories(user_id: str or int, prompt: str, threshold: float) -> list[MemorySearchResult]:
+def search_relevant_memories(
+        user_id: str or int,
+        prompt: str,
+        threshold: float = 0.9,
+        limit: int = 5
+) -> list[MemorySearchResult]:
     prompt_embedding = get_embedding(prompt)
     es_query = {
         "query": {
@@ -43,7 +48,7 @@ def search_relevant_memories(user_id: str or int, prompt: str, threshold: float)
             }
         },
         "min_score": threshold,
-        "size": 1,
+        "size": limit,
         "knn": {
             "field": "embedding",
             "query_vector": prompt_embedding,

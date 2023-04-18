@@ -2,7 +2,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 __indent_level = 0
-
+logging.basicConfig(filename='logs.log', level=logging.INFO)
 
 def log(message: str, level=logging.INFO):
     indent = '  ' * __indent_level

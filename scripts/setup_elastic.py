@@ -4,7 +4,7 @@ NUMBER_OF_SHARDS = 1
 
 
 def recreate_index(es: Elasticsearch, index: str, **kwargs):
-    if es.indices.exists(index=index) is True:
+    if es.indices.exists(index=index):
         es.indices.delete(index=index)
     es.indices.create(index=index, **kwargs)
 
@@ -78,8 +78,8 @@ def create_indices():
     data = client.info()
     print(data)
     create_memories_index(client)
-    #create_stories_index(client)
-    #create_facts_index(client)
+    create_stories_index(client)
+    create_facts_index(client)
 
 
 if __name__ == '__main__':
