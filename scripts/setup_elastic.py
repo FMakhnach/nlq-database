@@ -63,6 +63,18 @@ def create_facts_index(es: Elasticsearch):
     }
     recreate_index(es, index='stories', settings=settings, mappings=mappings)
 
+def create_openai_calls_logs_index(es: Elasticsearch):
+    settings = {
+        "number_of_shards": NUMBER_OF_SHARDS,
+    }
+    mappings = {
+        "properties": {
+            "params": {"type": "object"},
+            "response": {"type": "text"},
+        }
+    }
+    recreate_index(es, index='openai_logs', settings=settings, mappings=mappings)
+
 
 def create_indices():
     CERT_FINGERPRINT = "aa12b0203cdf7439af11fab9045b500b0ad6fc5ef41b1302e42d97543dd2f922"
@@ -77,9 +89,10 @@ def create_indices():
 
     data = client.info()
     print(data)
-    create_memories_index(client)
+    # create_memories_index(client)
     create_stories_index(client)
-    create_facts_index(client)
+    # create_facts_index(client)
+    create_openai_calls_logs_index(client)
 
 
 if __name__ == '__main__':

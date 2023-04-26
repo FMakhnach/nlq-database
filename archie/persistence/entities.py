@@ -17,7 +17,7 @@ class Memory(ConvertableToDict):
 
     def __str__(self):
         user = 'USER' if self.is_users else 'YOU'
-        return f'[{self.moment}] {user}: "{self.memory}"'
+        return f'[{self.moment.strftime("%B %d, %Y %H:%M:%S")}] {user}: "{self.memory}"'
 
 
 @dataclass

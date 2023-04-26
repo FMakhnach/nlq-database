@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from archie.ml.embedder import get_embedding
 from archie.persistence.elastic import es_client
 from archie.persistence.entities import Memory, MemorySearchResult
@@ -22,9 +24,9 @@ def get_last_memories(user_id: str, limit: int = 6) -> list[Memory]:
     results = es_client.search(index="memories", body=es_query)["hits"]["hits"]
     memories = [
         Memory(
-            moment=result['_source']['moment'],
+            moment=datetime.fromisoformat(result['_source']['moment']),
             user_id=result['_source']['user_id'],
-            is_users=result['_source']['is_users'],
+            is_users=bool(result['_source']['is_users']),
             memory=result['_source']['memory'],
         )
         for result in results
@@ -60,9 +62,9 @@ def search_relevant_memories(
     memories = [
         MemorySearchResult(
             Memory(
-                moment=result['_source']['moment'],
+                moment=datetime.fromisoformat(result['_source']['moment']),
                 user_id=result['_source']['user_id'],
-                is_users=result['_source']['is_users'],
+                is_users=bool(result['_source']['is_users']),
                 memory=result['_source']['memory'],
             ),
             score=result['_score']

@@ -22,25 +22,26 @@ def build_response(
         relevant_memories: list[Memory] or None,
         additional_data: str or None,
 ) -> str:
-    ai_prompt = f"""You are a personal AI chat-bot assistant. You need to answer user's prompt: "{prompt}".\n"""
-    additional_info = []
+    ai_prompt = f"""
+"""
+    if last_memories is None or len(last_memories) == 0:
+        ai_prompt += 'You have no recorded history of your conversation, so consider this is the first message.'
+    else:
+        ai_prompt += 'You have the following information recorded:'
 
-    if last_memories is not None and len(last_memories) > 0:
         memories_chat = ''.join(['\n* ' + str(m) for m in last_memories])
-        additional_info.append(f"\n- Your previous conversation:\n```\n{memories_chat}\n```\n""")
+        ai_prompt += f"\n- Your previous conversation:\n```{memories_chat}\n```"""
 
-    if relevant_memories is not None and len(relevant_memories) > 0:
-        other_memories = ''.join(['\n* ' + str(m) for m in relevant_memories])
-        additional_info.append(f"\n- Some other relevant messages:\n```\n{other_memories}\n```\n""")
+        if relevant_memories is not None and len(relevant_memories) > 0:
+            other_memories = ''.join(['\n* ' + str(m) for m in relevant_memories])
+            ai_prompt += f"\n- Some other relevant messages:\n```{other_memories}\n```"""
 
-    if additional_data is not None and additional_data.strip() != '':
-        additional_info.append(f"\n- Other relevant information:\n{additional_data}\n\n""")
+        if additional_data is not None and additional_data.strip() != '':
+            ai_prompt += f"\n- Other relevant information:\n{additional_data}\n"""
 
-    if len(additional_info) > 0:
-        ai_prompt += "Below is the information that you can use."
-        ai_prompt += ''.join(additional_info)
+        ai_prompt += f'\nUsing this information, answer the following user request: "{prompt}".'
 
-    ai_prompt += f"\nGive an answer to users prompt. Do NOT make things up. Use user's prompt language.\nFor the reference: now is {datetime.now()}."
+    ai_prompt += f' Do NOT make things up. You don\'t have to use recalled data, but use it if it suits response. Use language of the prompt!\nFor the reference: now is {datetime.now()}.'
     response = openai.ask(ai_prompt, task_difficulty=openai.TaskDifficulty.HARD)
     return response
 

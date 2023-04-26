@@ -1,9 +1,10 @@
-import openai
+from datetime import datetime
 from enum import Enum
+import openai
 
-# openai.api_key = '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'  # os.getenv("OPENAI_API_KEY")
-# openai.api_key = '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'  # os.getenv("OPENAI_API_KEY")
-openai.api_key = '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'  # os.getenv("OPENAI_API_KEY")
+import archie.persistence.openai_calls_logs_repository as logs
+
+openai.api_key = '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'  # os.getenv("OPENAI_API_KEY")
 
 
 class TaskDifficulty(Enum):
@@ -19,10 +20,13 @@ def ask(prompt: str,
         task_difficulty: TaskDifficulty = TaskDifficulty.HARD,
         max_tokens: int = 1000
         ) -> str:
-    response = openai.Completion.create(
-        model=task_difficulty.get_model_name(),
-        prompt=prompt,
-        temperature=0.5,
-        max_tokens=max_tokens,
-    )
-    return response.choices[0].text
+    params = {
+        "model": task_difficulty.get_model_name(),
+        "prompt": prompt,
+        "temperature": 0,
+        "max_tokens": max_tokens,
+    }
+    response = openai.Completion.create(**params)
+    response_text = response.choices[0].text
+    logs.add({'params': params, 'moment': datetime.now(), 'response': response_text})
+    return response_text

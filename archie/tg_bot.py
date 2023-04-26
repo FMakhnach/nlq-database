@@ -10,15 +10,19 @@ api_url = 'http://127.0.0.1:5000/'
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="Hello! Let's start our tests.")
+    message = update.message.text
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Your message is: {message}")
 
 
-async def handle_text_msg(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def handle_text_msg(update: Update, context: ContextTypes.DEFAULT_TYPE, request_type: str = None):
     message = update.message.text
     user_id = str(update.effective_user.id)
     chat_id = update.effective_chat.id
-    response = Conversation(user_id).send_message(message)
-    await context.bot.send_message(chat_id=chat_id, text=response)
+    try:
+        response = Conversation(user_id).send_message(message)
+        await context.bot.send_message(chat_id=chat_id, text=response)
+    except Exception as e:
+        await context.bot.send_message(chat_id=chat_id, text=f'Got ERROR: {e}')
 
 
 async def voice_to_text(file_id: str, context: ContextTypes.DEFAULT_TYPE) -> str or None:
