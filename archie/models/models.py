@@ -4,18 +4,13 @@ from enum import Enum
 
 
 @dataclass
-class Prompt:
+class UserQuery:
     text: str
 
 
 @dataclass
 class GeneratedResponse:
     text: str
-
-
-@dataclass
-class UserId:
-    value: str
 
 
 @dataclass

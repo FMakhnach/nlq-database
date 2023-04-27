@@ -1,3 +1,4 @@
+from archie.models import ConversationId
 from archie.ml.embedder import get_embedding
 from archie.persistence.elastic import es_client
 from archie.persistence.entities import Story, StorySearchResult
@@ -5,17 +6,20 @@ from archie.persistence.entities import Story, StorySearchResult
 
 def add_story(story: Story):
     story_doc = story.to_dict()
-    story_doc['embedding'] = get_embedding(story.name)
+    story_doc['embedding'] = get_embedding(story.key)
     es_client.index(index='stories', document=story_doc)
 
 
-def search_relevant_stories(user_id: str or int, prompt: str, threshold: float) -> list[StorySearchResult]:
-    prompt_embedding = get_embedding(prompt)
+def search_relevant_stories(
+        conversation_id: ConversationId,
+        reference_text: str,
+        threshold: float) -> list[StorySearchResult]:
+    reference_embedding = get_embedding(reference_text)
     es_query = {
         "query": {
             "bool": {
                 "must": {
-                    "match": {"user_id": str(user_id)}
+                    "match": {"conversation_id": conversation_id.value}
                 },
             }
         },
@@ -23,7 +27,7 @@ def search_relevant_stories(user_id: str or int, prompt: str, threshold: float) 
         "size": 1,
         "knn": {
             "field": "embedding",
-            "query_vector": prompt_embedding,
+            "query_vector": reference_embedding,
             "k": 10,
             "num_candidates": 100,
         },
@@ -31,15 +35,19 @@ def search_relevant_stories(user_id: str or int, prompt: str, threshold: float) 
     results = es_client.search(index="stories", body=es_query)["hits"]["hits"]
     stories = [
         StorySearchResult(
-            Story(
-                user_id=result['_source']['user_id'],
-                name=result['_source']['name'],
-                description=result['_source']['description'],
-                prompt=result['_source']['prompt'],
-                schema=result['_source']['schema'],
-            ),
-            score=result['_score']
+            story=to_story(result['_source']),
+            score=result['_score'],
         )
         for result in results
     ]
     return stories
+
+
+def to_story(source: dict) -> Story:
+    return Story(
+        conversation_id=source['conversation_id'],
+        key=source['key'],
+        reference=source['reference'],
+        message=source['message'],
+        schema=source['schema'],
+    )

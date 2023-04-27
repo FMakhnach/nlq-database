@@ -1,11 +1,12 @@
-from conversation import Conversation
+from archie.app.conversation import Conversation
+from archie.models import ConversationId
 from testcases import testcases
 
 logger = print
 
 def evaluate():
     scores = {}
-    conversation = Conversation(user_id=0)
+    conversation = Conversation(ConversationId('0'))
     for i, testcase in enumerate(testcases):
         if 'enabled' in testcase and testcase['enabled'] is False:
             continue
@@ -21,7 +22,7 @@ def evaluate():
                     continue
                 user_message = line["Q"]
                 expected_response = line["A"]
-                response = conversation.respond(line["Q"])
+                response = conversation.respond(line["Q"]).text
                 logger(f'>> Q: {user_message}')
                 logger(f'>> Expected: {expected_response}')
                 logger(f'>> Got: {response}')

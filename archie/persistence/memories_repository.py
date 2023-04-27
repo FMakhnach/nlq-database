@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from archie.models import Prompt, ConversationId
+from archie.models import ConversationId
 from archie.ml.embedder import get_embedding
 from archie.persistence.elastic import es_client
 from archie.persistence.entities import MemoryEntity, MemorySearchResult
@@ -12,7 +12,7 @@ def add_memory(memory: MemoryEntity) -> None:
     es_client.index(index='memories', document=memory_doc)
 
 
-def get_last_memories(conversation_id: ConversationId, limit: int = 6) -> list[MemoryEntity]:
+def get_last_memories(conversation_id: ConversationId, limit: int = 4) -> list[MemoryEntity]:
     es_query = {
         "size": limit,
         "sort": [{"moment": {"order": "desc"}}],
@@ -34,11 +34,11 @@ def get_last_memories(conversation_id: ConversationId, limit: int = 6) -> list[M
 
 def search_relevant_memories(
         conversation_id: ConversationId,
-        prompt: Prompt,
+        reference_text: str,
         threshold: float = 0.3,
         limit: int = 5
 ) -> list[MemorySearchResult]:
-    prompt_embedding = get_embedding(prompt.text)
+    reference_embedding = get_embedding(reference_text)
     es_query = {
         "query": {
             "bool": {
@@ -52,7 +52,7 @@ def search_relevant_memories(
         "size": limit,
         "knn": {
             "field": "embedding",
-            "query_vector": prompt_embedding,
+            "query_vector": reference_embedding,
             "k": 10,
             "num_candidates": 100,
         },

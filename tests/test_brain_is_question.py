@@ -1,7 +1,7 @@
 import pytest
 
 import archie.app.brain as brain
-from archie.models import Prompt
+from archie.models import UserQuery
 
 
 @pytest.mark.parametrize(
@@ -13,7 +13,7 @@ from archie.models import Prompt
         'как назывался тот ресторан где я завтракал в Питере',
     ])
 def test_is_question__question(prompt: str):
-    prompt_obj = Prompt(prompt)
+    prompt_obj = UserQuery(prompt)
     is_question = brain.is_question(prompt_obj)
     assert is_question is True
 
@@ -27,7 +27,7 @@ def test_is_question__question(prompt: str):
         '5/7 страниц переписаны',
     ])
 def test_is_question__statement(prompt):
-    prompt_obj = Prompt(prompt)
+    prompt_obj = UserQuery(prompt)
     is_question = brain.is_question(prompt_obj)
     assert is_question is False
 
@@ -39,6 +39,6 @@ def test_is_question__statement(prompt):
         'Перечисли где я был на той неделе',
     ])
 def test_is_question__request(prompt):
-    prompt_obj = Prompt(prompt)
+    prompt_obj = UserQuery(prompt)
     is_question = brain.is_question(prompt_obj)
     assert is_question is True

@@ -35,10 +35,10 @@ def create_stories_index(es: Elasticsearch):
     }
     mappings = {
         "properties": {
-            "user_id": {"type": "text"},
-            "name": {"type": "text"},
-            "description": {"type": "text"},
-            "prompt": {"type": "text"},
+            "conversation_id": {"type": "text"},
+            "key": {"type": "text"},
+            "reference": {"type": "text"},
+            "message": {"type": "text"},
             "schema": {"type": "text"},
             "embedding": {
                 "type": "dense_vector",
@@ -56,12 +56,12 @@ def create_facts_index(es: Elasticsearch):
     }
     mappings = {
         "properties": {
-            "user_id": {"type": "text"},
-            "story_name": {"type": "text"},
+            "conversation_id": {"type": "text"},
+            "story_key": {"type": "text"},
             "data": {"type": "object"},
         }
     }
-    recreate_index(es, index='stories', settings=settings, mappings=mappings)
+    recreate_index(es, index='facts', settings=settings, mappings=mappings)
 
 
 def create_openai_calls_logs_index(es: Elasticsearch):
@@ -90,9 +90,9 @@ def create_indices():
 
     data = client.info()
     print(data)
-    create_memories_index(client)
-    #create_stories_index(client)
-    # create_facts_index(client)
+    # create_memories_index(client)
+    create_stories_index(client)
+    create_facts_index(client)
     #create_openai_calls_logs_index(client)
 
 

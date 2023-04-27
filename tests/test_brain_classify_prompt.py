@@ -17,5 +17,5 @@ from models import PromptClass
 def test_is_question__question(expected_class: PromptClass, prompt: str):
     if expected_class is PromptClass.SELECT:
         return
-    prompt_class = brain.classify_prompt(prompt)
+    prompt_class = brain.classify_query(prompt)
     assert prompt_class == expected_class

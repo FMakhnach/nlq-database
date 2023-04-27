@@ -4,14 +4,14 @@ import json
 
 from archie.app.brain_helpers import *
 import archie.external.openai_client as openai
-from archie.models import Prompt, GeneratedResponse
+from archie.models import UserQuery, GeneratedResponse
 from archie.monitoring.logging import log_function, log
-from archie.persistence.entities import MemoryEntity, Story
+from archie.persistence.entities import Story
 import archie.utilities.text as text_utils
 import archie.utilities.datetime_utils as dt
 
 
-class PromptClass(Enum):
+class QueryClass(Enum):
     NOTHING = 1
     SELECT = 2
     INSERT = 3
@@ -21,7 +21,7 @@ class PromptClass(Enum):
 
 @log_function
 def build_answer_to_question(
-        prompt: Prompt,
+        query: UserQuery,
         last_memories: list[Memory],
         relevant_memories: list[Memory],
 ) -> GeneratedResponse:
@@ -31,26 +31,43 @@ def build_answer_to_question(
     last_memories_text = prepare_last_memories_str(last_memories)
     relevant_memories_text = prepare_relevant_memories_str(relevant_memories)
 
-    ai_prompt = f"""
+    prompt = f"""
 Memory Assistant is a large language model trained by OpenAI.
 Memory Assistant is designed to be able to answer Human's questions based on previous conversation history.
 Memory Assistant is flexible and can switch language of generated response based on the last Human's message.
-Memory Assistant uses his own search techniques to extract data relevant to the Human's prompt.
+Memory Assistant uses his own search techniques to extract data relevant to the Human's message.
 {relevant_memories_text}
 The most recent conversation of Human and Assistant is the following.
 {last_memories_text}
-[{now}] Human: {prompt.text}
+[{now}] Human: {query.text}
 [{now_but_later}] Assistant:
 """
-    log(ai_prompt)
-    response = openai.ask(ai_prompt, task_difficulty=openai.TaskDifficulty.HARD)
+    log(prompt)
+    response = openai.ask(prompt, task_difficulty=openai.TaskDifficulty.HARD)
     return response
 
 
 @log_function
-def is_question(prompt: Prompt) -> bool:
-    ai_prompt = f"""Is it a question or a statement: "{prompt}"? Answer with "question" or "statement"."""
-    response = openai.ask(ai_prompt, task_difficulty=openai.TaskDifficulty.HARD)
+def generate_saved_fact_response(query: UserQuery) -> GeneratedResponse:
+    prompt = f"""
+Memory Assistant is a large language model trained by OpenAI.
+Memory Assistant is designed to save information user gives to him in messages.
+Memory Assistant is flexible and can switch language of generated response based on the last Human's message.
+Human just told you:
+```
+{query.text}
+```
+You successfully saved this info. Reply to user briefly and affirmatively.
+"""
+    log(prompt)
+    response = openai.ask(prompt, task_difficulty=openai.TaskDifficulty.HARD)
+    return response
+
+
+@log_function
+def is_question(query: UserQuery) -> bool:
+    prompt = f"""Is it a question or a statement: "{query.text}"? Answer with "question" or "statement"."""
+    response = openai.ask(prompt, task_difficulty=openai.TaskDifficulty.HARD)
     response = text_utils.extract_phrase(response.text)
     if response == 'question':
         return True
@@ -61,110 +78,110 @@ def is_question(prompt: Prompt) -> bool:
 
 # TODO: fit model
 @log_function
-def classify_prompt(prompt: Prompt) -> PromptClass:
-    ai_prompt = f"""
-You are NLQ processor. You convert user's natural-language prompt into a database query. First, you need to define, what operation to perform.
-User prompt is: `{prompt}`.
+def classify_query(query: UserQuery) -> QueryClass:
+    prompt = f"""
+You are NLQ processor. You convert user's natural language message into a database query. First, you need to define, what operation to perform.
+User query is: `{query.text}`.
 If user tells us a fact / a statement / a piece of info we can store, reply with 'insert'.
 If user asks to amend some previous information that he gave, reply with 'update'.
 If user asks to delete some previous information, reply with 'delete'.
 If user asks a question, where the answer implies using some previously given information, reply with 'select'.
 Reply with a single word, nothing else.
 """
-    response = openai.ask(ai_prompt, task_difficulty=openai.TaskDifficulty.HARD)
-    response = text_utils.extract_phrase(response)
+    response = openai.ask(prompt, task_difficulty=openai.TaskDifficulty.HARD)
+    response = text_utils.extract_phrase(response.text)
     if response == 'nothing':
-        return PromptClass.NOTHING
+        return QueryClass.NOTHING
     if response == 'select':
-        return PromptClass.SELECT
+        return QueryClass.SELECT
     if response == 'insert':
-        return PromptClass.INSERT
+        return QueryClass.INSERT
     if response == 'update':
-        return PromptClass.UPDATE
+        return QueryClass.UPDATE
     if response == 'delete':
-        return PromptClass.DELETE
-    raise Exception(f'Unexpected prompt class "{response}"')
+        return QueryClass.DELETE
+    raise Exception(f'Unexpected query class "{response}"')
 
 
 @log_function
-def generate_story_name(prompt: Prompt) -> str:
-    ai_prompt = f"""
+def generate_tag(query: UserQuery) -> str:
+    prompt = f"""
 You are a text classifier, you group semantically close texts and give each group a short tag.
-Give a tag to user\'s statement: "{prompt}".
+Give a tag to user\'s statement: "{query.text}".
 Be as specific as you can, but keep it short.
 """
-    response = openai.ask(ai_prompt, task_difficulty=openai.TaskDifficulty.LOW)
-    response = text_utils.extract_phrase(response)
-    return response
+    response = openai.ask(prompt, task_difficulty=openai.TaskDifficulty.LOW)
+    response_text = text_utils.extract_phrase(response.text)
+    return response_text
 
 
 @log_function
-def generate_description(prompt: Prompt) -> str:
-    ai_prompt = f"""
+def generate_reference_text(query: UserQuery) -> str:
+    prompt = f"""
 You are a text analyzer. I give you users message, you explain it to me and describe what it is about and what user wants.  
 Users message is:
-{prompt}
+{query.text}
 """
-    response = openai.ask(ai_prompt, task_difficulty=openai.TaskDifficulty.HARD)
-    response = text_utils.extract_phrase(response)
-    return response
+    response = openai.ask(prompt, task_difficulty=openai.TaskDifficulty.HARD)
+    response_text = text_utils.extract_phrase(response.text)
+    return response_text
 
 
 @log_function
-def create_fact_schema(prompt: Prompt) -> str:
-    ai_prompt = f"""
-You are NLQ processor. You extract all useful data from user natural-language prompt and convert it into structured JSON object.
-Write a JSON Typedef schema that can fit all data from user prompt: "{prompt}".
+def create_fact_schema(query: UserQuery) -> str:
+    prompt = f"""
+You are NLQ processor. You extract all useful data from user natural language messages and convert it into structured JSON object.
+Write a JSON Typedef schema that can fit all data from user query: "{query.text}".
 Make it brief, but keep as much useful info as you can. Don't create excessive attributes. Don't create root property.
 Don't add description fields. Don't separate date and time for moment of time representation, use datetime.
 Format JSON Typedef in the most compact way - without spaces.
 """
-    response = openai.ask(ai_prompt)
-    return response
+    response = openai.ask(prompt)
+    return response.text
 
 
 @log_function
-def explain_prompt(prompt: Prompt) -> str:
-    ai_prompt = f"""
-User interacts with one NLQ system which converts natural language prompts into database queries.
-User prompt is "{prompt}".
+def explain_query(query: UserQuery) -> str:
+    prompt = f"""
+User interacts with one NLQ system which converts natural language messages into database queries.
+User query is "{query.text}".
 Explain in a couple of sentences what user wants.
 """
-    response = openai.ask(ai_prompt)
+    response = openai.ask(prompt).text
     return response
 
 
 @log_function
-def create_elastic_query(prompt: Prompt, story: Story) -> dict:
-    ai_prompt = f"""
-You are NLQ system, you convert user natural language prompts into database queries.
+def create_elastic_query(query: UserQuery, story: Story) -> dict:
+    prompt = f"""
+You are NLQ system, you convert user natural language messages into database queries.
 You are operating ElasticSearch of version 8.6.2. Data is stored in index "facts", documents have this structure:
-{{ "user_id": "{story.user_id}", "story_name": "{story.name}", "data": {{}} }}
+{{ "conversation_id": "{story.conversation_id}", "story_key": "{story.key}", "data": {{}} }}
 where "data" has structure described by the following Typedef:
 ```
 {story.schema}
 ```
-Create DSL query by this user prompt description: "{prompt}". Format query in the most compact way.
+Create DSL query by this users message: "{query.text}". Format query in the most compact way.
 For reference: now is {datetime.now()}.
 """
-    response = openai.ask(ai_prompt)
+    response = openai.ask(prompt).text
     response = text_utils.extract_json(response)
     response = json.loads(response)
     return response
 
 
 @log_function
-def try_create_json_by_schema(prompt: Prompt, schema: str) -> str or None:
-    the_prompt = f"""
-Convert user's prompt to JSON with schema described by JSON Typedef:
+def try_create_json_by_schema(query: UserQuery, schema: str) -> str or None:
+    prompt = f"""
+Convert user's message to JSON with schema described by JSON Typedef:
 ```
 {schema}
 ```
-User's prompt is: "{prompt}".
-If you cannot fit all data from prompt into the schema, reply "NO". Otherwise return JSON object describing the prompt with given schema. Format JSON in the most compact way.
+User's message is: "{query.text}".
+If you cannot fit all data from message into the schema, reply "NO". Otherwise return JSON object describing the prompt with given schema. Format JSON in the most compact way.
 For reference: now is {datetime.now()}.
 """
-    response = openai.ask(the_prompt)
+    response = openai.ask(prompt).text
     if text_utils.extract_phrase(response) == 'no':
         return None
     return text_utils.extract_json(response)

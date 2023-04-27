@@ -3,13 +3,11 @@ from pydub import AudioSegment
 from speech_recognition import AudioFile, Recognizer
 
 
-def try_recognize_text_from_ogg(ogg_file_path: str, language: str = 'ru_RU') -> str or None:
-    if not ogg_file_path.endswith('.ogg'):
-        raise Exception('Not ogg file')
-    wav_file_path = ogg_file_path[:-4] + '.wav'
+def try_recognize_text_from_audio(audio_file, language: str = 'ru_RU') -> str or None:
+    wav_file_path = 'temp.wav'
     try:
         # Convert to WAV
-        audio = AudioSegment.from_file(ogg_file_path, format="ogg")
+        audio = AudioSegment.from_file(audio_file)
         audio.export(wav_file_path, format="wav")
 
         recognizer = Recognizer()

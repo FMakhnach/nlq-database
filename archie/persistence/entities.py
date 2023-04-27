@@ -24,10 +24,10 @@ class MemorySearchResult:
 
 @dataclass
 class Story(ConvertableToDict):
-    user_id: str
-    name: str
-    description: str
-    prompt: str
+    conversation_id: str
+    key: str
+    reference: str
+    message: str
     schema: str
 
 
@@ -39,6 +39,6 @@ class StorySearchResult:
 
 @dataclass
 class Fact(ConvertableToDict):
-    user_id: str
-    story_name: str
+    conversation_id: str
+    story_key: str
     data: dict

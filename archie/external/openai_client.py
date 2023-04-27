@@ -19,12 +19,12 @@ class TaskDifficulty(Enum):
 
 def ask(prompt: str,
         task_difficulty: TaskDifficulty = TaskDifficulty.HARD,
-        max_tokens: int = 200
+        max_tokens: int = 500
         ) -> GeneratedResponse:
     params = {
         "model": task_difficulty.get_model_name(),
         "prompt": prompt,
-        "temperature": 0,
+        "temperature": 0.1,
         "max_tokens": max_tokens,
     }
     response = openai.Completion.create(**params)

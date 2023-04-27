@@ -1,54 +1,106 @@
-from flask import Flask, render_template, request
+from flask import Flask, request
+from werkzeug.datastructures import FileStorage
 
 from archie.app.conversation import Conversation
+from archie.ml.audio import try_recognize_text_from_audio
+from archie.models import ConversationId, UserQuery
+from archie.monitoring.logging import log
 
 # > Application improvements
 # [UNNECESSARY] user authentication
 # [DONE]: persistent storage
 # [DONE]: logging
-# TODO: environment configuration
-# TODO: secrets
+# TODO: configuration
 # TODO: docker
 
 # > AI improvements
 # TODO: make it not bullshit (impossible)
-# [DONE]: make it remember itself
-# TODO: memory summarization
-# [DONE]: db-side semantic search? https://github.com/pgvector/pgvector -- made it on elastic
-# TODO: message sizes restrictions
-# TODO: memory time relation
-# TODO: remove memories
+# [DONE]: last messages history
+# [DONE]: semantic search
 # [DONE]: embeddings search threshold
 # [DONE]: multilanguage
-# TODO: reminders (notifications)?
-# TODO: validate AI answer and retry?
+# [DONE]: memory time relation
+# TODO: message sizes restriction
+# TODO: degrade gracefully on exceptions
+# TODO: update/delete operations
+# TODO: aggregation questions
+# TODO: identify general questions
 
 app = Flask(__name__)
-messages = []
 
 
-@app.route("/")
-def home():
-    return render_template("index.html", messages=messages)
+@app.route("/v1/query", methods=["POST"])
+def process_text_query():
+    try:
+        conversation_id = extract_conversation_id_from_request(request.form)
+        query = extract_query_from_request(request.form)
+
+        conversation = Conversation(conversation_id)
+        response = conversation.respond(query)
+
+        return {
+            'response': response.text,
+        }
+    except Exception as e:
+        log(str(e))
+        # TODO graceful degradation
+        return {
+            'response': 'I am sorry, I got ill. Can\'t answer to your request :(',
+        }
 
 
-@app.route("/send", methods=["POST"])
-def send():
-    user_message = request.form['message']
-    user_id = request.form['user'] if 'user' in request.form else 0
+@app.route("/v1/query/audio", methods=["POST"])
+def process_audio_query():
+    try:
+        conversation_id = extract_conversation_id_from_request(request.form)
+        query = extract_query_from_audio_request(request.files)
 
-    conversation = Conversation(user_id)
-    response = conversation.respond(user_message)
+        conversation = Conversation(conversation_id)
+        response = conversation.respond(query)
 
-    messages.append({"sender": "user", "content": user_message})
-    messages.append({"sender": "bot", "content": response})
-    # template = render_template("index.html", messages=messages)
-    # return template
+        return {
+            'recognized_query': query.text,
+            'response': response.text,
+        }
+    except Exception as e:
+        log(str(e))
+        # TODO graceful degradation
+        return {
+            'response': 'I am sorry, I got ill. Can\'t answer to your request :(',
+        }
 
-    return {
-        'message': response
-    }
+
+@app.route("/v1/user/language", methods=["POST"])
+def set_user_language():
+    # TODO
+    return 'Unimplemented'
+
+
+def extract_conversation_id_from_request(request_form: dict[str, str]) -> ConversationId:
+    if 'user' not in request_form or request_form['user'].strip() == '':
+        raise Exception('You did not provide a user id')
+    conversation_id = ConversationId(request_form['user'])
+    return conversation_id
+
+
+def extract_query_from_request(request_form: dict[str, str]) -> UserQuery:
+    if 'message' not in request_form or request_form['message'].strip() == '':
+        raise Exception('You did not provide a message')
+    query = UserQuery(request_form['message'])
+    return query
+
+
+def extract_query_from_audio_request(request_files: dict[str, FileStorage]) -> UserQuery:
+    if 'audio' not in request_files:
+        raise Exception('No audio file found')
+    audio_file = request_files['audio']
+    text = try_recognize_text_from_audio(audio_file)
+    if text is None:
+        raise Exception('Failed to recognize text from audio')
+    query = UserQuery(text)
+    return query
 
 
 if __name__ == "__main__":
+    print('Starting server application')
     app.run(debug=True)
