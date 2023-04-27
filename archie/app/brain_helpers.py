@@ -16,14 +16,14 @@ def prepare_relevant_memories_str(relevant_memories: list[Memory]) -> str or Non
     if relevant_memories is not None and len(relevant_memories) > 0:
         other_memories = ''.join(['\n' + memory_to_dialog_str(m) for m in relevant_memories])
         relevant_memories_text = f"""
-When Human send Assistant his last message, he recalled some most relevant previous messages:
+When Human sent Archie his last message, Archie recalled some most relevant previous Human messages:
 ```
 {other_memories}
 ```
 """
     else:
         relevant_memories_text = """
-When Human send Assistant his last message, he found nothing relevant in his data storage. Most probably, it is a new topic.
+When Human send Archie his last message, he found nothing relevant in his data storage. Most probably, it is a new topic.
 """
 
     return relevant_memories_text
@@ -44,6 +44,6 @@ def text_author_type_to_dialog_str(author_type: TextAuthorType):
         case TextAuthorType.User:
             return 'Human'
         case TextAuthorType.System:
-            return 'Assistant'
+            return 'Archie'
         case _:
             raise ValueError(f'Unknown TextAuthorType: {author_type}')

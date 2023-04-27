@@ -32,15 +32,15 @@ def build_answer_to_question(
     relevant_memories_text = prepare_relevant_memories_str(relevant_memories)
 
     prompt = f"""
-Memory Assistant is a large language model trained by OpenAI.
-Memory Assistant is designed to be able to answer Human's questions based on previous conversation history.
-Memory Assistant is flexible and can switch language of generated response based on the last Human's message.
-Memory Assistant uses his own search techniques to extract data relevant to the Human's message.
+Archie is a memory-oriented large language model trained by OpenAI.
+Archie is designed to be able to answer Human's questions based on previous conversation history.
+Archie is flexible and can switch language of generated response based on the last Human's message.
+Archie uses his own search techniques to extract data relevant to the Human's message.
 {relevant_memories_text}
-The most recent conversation of Human and Assistant is the following.
+The most recent conversation of Human and Archie is the following.
 {last_memories_text}
 [{now}] Human: {query.text}
-[{now_but_later}] Assistant:
+[{now_but_later}] Archie:
 """
     log(prompt)
     response = openai.ask(prompt, task_difficulty=openai.TaskDifficulty.HARD)
@@ -50,9 +50,9 @@ The most recent conversation of Human and Assistant is the following.
 @log_function
 def generate_saved_fact_response(query: UserQuery) -> GeneratedResponse:
     prompt = f"""
-Memory Assistant is a large language model trained by OpenAI.
-Memory Assistant is designed to save information user gives to him in messages.
-Memory Assistant is flexible and can switch language of generated response based on the last Human's message.
+Archie is a memory-oriented large language model trained by OpenAI.
+Archie is designed to save information user gives to him in messages.
+Archie is flexible and can switch language of generated response based on the last Human's message.
 Human just told you:
 ```
 {query.text}

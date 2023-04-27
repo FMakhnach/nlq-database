@@ -9,7 +9,12 @@ load_dotenv()
 
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 ARCHIE_SERVER_HOST = os.getenv('ARCHIE_SERVER_HOST')
+FALLBACK_MESSAGE = 'Простите, я не могу вам ответить. Кажется, у меня ведутся какие-то технические работы'
 
+
+# TODO
+# retries policy
+# graceful degradation (setup phrases for error on serverside)
 
 @dataclass
 class QueryResponse:
@@ -64,7 +69,9 @@ archie_client = ArchieClient(ARCHIE_SERVER_HOST)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.message.text
-    await context.bot.respond(chat_id=update.effective_chat.id, text=f"Your message is: {message}")
+    greet = """Hello! My name is Archie and I am a Memory Assistant bot. How can I help you?
+Привет! Меня зовут Archie и я помогу вам с хранением вашей информации"""
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Your message is: {message}")
 
 
 async def handle_text_msg(update: Update, context: ContextTypes.DEFAULT_TYPE, request_type: str = None):
@@ -75,7 +82,8 @@ async def handle_text_msg(update: Update, context: ContextTypes.DEFAULT_TYPE, re
         response = archie_client.query(message, user)
         await context.bot.send_message(chat_id=chat_id, text=response.response)
     except Exception as e:
-        await context.bot.send_message(chat_id=chat_id, text=f'Got ERROR: {e}')
+        print(e)
+        await context.bot.send_message(chat_id=chat_id, text=FALLBACK_MESSAGE)
 
 
 async def handle_voice_msg(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -92,11 +100,12 @@ async def handle_voice_msg(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await context.bot.send_message(chat_id=chat_id, text=f'> "{response.recognized_query}"')
         await context.bot.send_message(chat_id=chat_id, text=response.response)
     except Exception as e:
-        await context.bot.send_message(chat_id=chat_id, text=f'Got ERROR: {e}')
+        print(e)
+        await context.bot.send_message(chat_id=chat_id, text=FALLBACK_MESSAGE)
 
 
 async def unknown(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.respond(chat_id=update.effective_chat.id, text="Sorry, I don't know that command.")
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="Простите, я не знаю такой команды")
 
 
 if __name__ == '__main__':

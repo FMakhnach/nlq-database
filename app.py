@@ -13,23 +13,26 @@ from archie.monitoring.logging import log
 # [UNNECESSARY] user authentication
 # [DONE]: persistent storage
 # [DONE]: logging
-# TODO: configuration
+# [DONE]: configuration
 # TODO: docker
+# TODO: message sizes restriction
+# TODO: degrade gracefully on exceptions
 
 # > AI improvements
 # TODO: make it not bullshit (impossible)
 # [DONE]: last messages history
 # [DONE]: semantic search
 # [DONE]: embeddings search threshold
-# [DONE]: multilanguage
+# TODO: multilanguage
 # [DONE]: memory time relation
-# TODO: message sizes restriction
-# TODO: degrade gracefully on exceptions
 # TODO: update/delete operations
 # TODO: aggregation questions
 # TODO: identify general questions
+# TODO: remove duplicate messages (relevant and memory)
 
 app = Flask(__name__)
+
+FALLBACK_MESSAGE = 'Простите, у меня произошла какая-то ошибка и я не смог обработать твой запрос.'
 
 
 @app.route("/v1/query", methods=["POST"])
@@ -48,7 +51,7 @@ def process_text_query():
         log(str(e))
         # TODO graceful degradation
         return {
-            'response': 'I am sorry, I got ill. Can\'t answer to your request :(',
+            'response': FALLBACK_MESSAGE,
         }
 
 
@@ -69,7 +72,7 @@ def process_audio_query():
         log(str(e))
         # TODO graceful degradation
         return {
-            'response': 'I am sorry, I got ill. Can\'t answer to your request :(',
+            'response': FALLBACK_MESSAGE,
         }
 
 
