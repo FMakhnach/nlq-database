@@ -1,5 +1,7 @@
 venv/
 .idea/
+archive/
+archie_venv/
 
 *.pyc
 __pycache__/
@@ -16,6 +18,5 @@ build/
 
 .DS_STORE
 
-.env
-
+*.env
 *.log

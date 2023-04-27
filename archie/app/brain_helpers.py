@@ -13,7 +13,6 @@ def prepare_last_memories_str(last_memories: list[Memory]) -> str or None:
 
 
 def prepare_relevant_memories_str(relevant_memories: list[Memory]) -> str or None:
-    relevant_memories_text = None
     if relevant_memories is not None and len(relevant_memories) > 0:
         other_memories = ''.join(['\n' + memory_to_dialog_str(m) for m in relevant_memories])
         relevant_memories_text = f"""

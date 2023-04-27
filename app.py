@@ -6,6 +6,9 @@ from archie.ml.audio import try_recognize_text_from_audio
 from archie.models import ConversationId, UserQuery
 from archie.monitoring.logging import log
 
+# > Features
+# image tagging and saving
+
 # > Application improvements
 # [UNNECESSARY] user authentication
 # [DONE]: persistent storage

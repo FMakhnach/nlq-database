@@ -1,10 +1,18 @@
+from dotenv import load_dotenv
 from elasticsearch import Elasticsearch
+import os
 
-CERT_FINGERPRINT = "aa12b0203cdf7439af11fab9045b500b0ad6fc5ef41b1302e42d97543dd2f922"
-ELASTIC_PASSWORD = "z*b-*g9iIpvYgkSW9WN7"
+load_dotenv()
+
+ELASTIC_HOST = os.getenv("ELASTIC_HOST")
+ELASTIC_CERT_FINGERPRINT = os.getenv("ELASTIC_CERT_FINGERPRINT")
+ELASTIC_LOGIN = os.getenv("ELASTIC_LOGIN")
+ELASTIC_PASSWORD = os.getenv("ELASTIC_PASSWORD")
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 es_client = Elasticsearch(
-    "https://localhost:9200",
-    ssl_assert_fingerprint=CERT_FINGERPRINT,
-    basic_auth=("elastic", ELASTIC_PASSWORD)
+    ELASTIC_HOST,
+    ssl_assert_fingerprint=ELASTIC_CERT_FINGERPRINT,
+    basic_auth=(ELASTIC_LOGIN, ELASTIC_PASSWORD),
 )

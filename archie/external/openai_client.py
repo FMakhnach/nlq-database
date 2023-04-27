@@ -1,11 +1,12 @@
 from datetime import datetime
 from enum import Enum
 import openai
+import os
 
 from archie.models import GeneratedResponse
 import archie.persistence.openai_calls_logs_repository as logs
 
-openai.api_key = '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'  # os.getenv("OPENAI_API_KEY")
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 class TaskDifficulty(Enum):
@@ -19,7 +20,7 @@ class TaskDifficulty(Enum):
 
 def ask(prompt: str,
         task_difficulty: TaskDifficulty = TaskDifficulty.HARD,
-        max_tokens: int = 500
+        max_tokens: int = 500,
         ) -> GeneratedResponse:
     params = {
         "model": task_difficulty.get_model_name(),

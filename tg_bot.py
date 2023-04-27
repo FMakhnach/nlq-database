@@ -1,10 +1,14 @@
 from dataclasses import dataclass
+from dotenv import load_dotenv
+import os
 import requests
 from telegram import Update
 from telegram.ext import filters, MessageHandler, ApplicationBuilder, CommandHandler, ContextTypes
 
-tg_token = '6203226914:AAHsTEQnref0a4kdF7o0sg3Ba3yQtIdWRus'
-api_url = 'http://127.0.0.1:5000'
+load_dotenv()
+
+TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+ARCHIE_SERVER_HOST = os.getenv('ARCHIE_SERVER_HOST')
 
 
 @dataclass
@@ -55,7 +59,7 @@ class ArchieClient:
             raise Exception(f'Server error. {response.status_code}, {response.content}.')
 
 
-archie_client = ArchieClient(api_url)
+archie_client = ArchieClient(ARCHIE_SERVER_HOST)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -97,7 +101,7 @@ async def unknown(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 if __name__ == '__main__':
     print('Started application')
-    application = ApplicationBuilder().token(tg_token).build()
+    application = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
 
     # Start command
     start_handler = CommandHandler('start', start)
