@@ -21,7 +21,7 @@ def evaluate():
                     continue
                 user_message = line["Q"]
                 expected_response = line["A"]
-                response = conversation.send_message(line["Q"])
+                response = conversation.respond(line["Q"])
                 logger(f'>> Q: {user_message}')
                 logger(f'>> Expected: {expected_response}')
                 logger(f'>> Got: {response}')

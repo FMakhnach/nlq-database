@@ -1,11 +1,14 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import Enum
 import json
 
-from archie.persistence.entities import Memory, Story
+from archie.app.brain_helpers import *
 import archie.external.openai_client as openai
-from archie.monitoring.logging import log_function
+from archie.models import Prompt, GeneratedResponse
+from archie.monitoring.logging import log_function, log
+from archie.persistence.entities import MemoryEntity, Story
 import archie.utilities.text as text_utils
+import archie.utilities.datetime_utils as dt
 
 
 class PromptClass(Enum):
@@ -16,41 +19,39 @@ class PromptClass(Enum):
     DELETE = 5
 
 
-def build_response(
-        prompt: str,
-        last_memories: list[Memory] or None,
-        relevant_memories: list[Memory] or None,
-        additional_data: str or None,
-) -> str:
+@log_function
+def build_answer_to_question(
+        prompt: Prompt,
+        last_memories: list[Memory],
+        relevant_memories: list[Memory],
+) -> GeneratedResponse:
+    now = dt.to_str(datetime.now())
+    now_but_later = dt.to_str(datetime.now() + timedelta(seconds=5))
+
+    last_memories_text = prepare_last_memories_str(last_memories)
+    relevant_memories_text = prepare_relevant_memories_str(relevant_memories)
+
     ai_prompt = f"""
+Memory Assistant is a large language model trained by OpenAI.
+Memory Assistant is designed to be able to answer Human's questions based on previous conversation history.
+Memory Assistant is flexible and can switch language of generated response based on the last Human's message.
+Memory Assistant uses his own search techniques to extract data relevant to the Human's prompt.
+{relevant_memories_text}
+The most recent conversation of Human and Assistant is the following.
+{last_memories_text}
+[{now}] Human: {prompt.text}
+[{now_but_later}] Assistant:
 """
-    if last_memories is None or len(last_memories) == 0:
-        ai_prompt += 'You have no recorded history of your conversation, so consider this is the first message.'
-    else:
-        ai_prompt += 'You have the following information recorded:'
-
-        memories_chat = ''.join(['\n* ' + str(m) for m in last_memories])
-        ai_prompt += f"\n- Your previous conversation:\n```{memories_chat}\n```"""
-
-        if relevant_memories is not None and len(relevant_memories) > 0:
-            other_memories = ''.join(['\n* ' + str(m) for m in relevant_memories])
-            ai_prompt += f"\n- Some other relevant messages:\n```{other_memories}\n```"""
-
-        if additional_data is not None and additional_data.strip() != '':
-            ai_prompt += f"\n- Other relevant information:\n{additional_data}\n"""
-
-        ai_prompt += f'\nUsing this information, answer the following user request: "{prompt}".'
-
-    ai_prompt += f' Do NOT make things up. You don\'t have to use recalled data, but use it if it suits response. Use language of the prompt!\nFor the reference: now is {datetime.now()}.'
+    log(ai_prompt)
     response = openai.ask(ai_prompt, task_difficulty=openai.TaskDifficulty.HARD)
     return response
 
 
 @log_function
-def is_question(prompt: str) -> bool:
+def is_question(prompt: Prompt) -> bool:
     ai_prompt = f"""Is it a question or a statement: "{prompt}"? Answer with "question" or "statement"."""
     response = openai.ask(ai_prompt, task_difficulty=openai.TaskDifficulty.HARD)
-    response = text_utils.extract_phrase(response)
+    response = text_utils.extract_phrase(response.text)
     if response == 'question':
         return True
     if response == 'statement':
@@ -60,7 +61,7 @@ def is_question(prompt: str) -> bool:
 
 # TODO: fit model
 @log_function
-def classify_prompt(prompt: str) -> PromptClass:
+def classify_prompt(prompt: Prompt) -> PromptClass:
     ai_prompt = f"""
 You are NLQ processor. You convert user's natural-language prompt into a database query. First, you need to define, what operation to perform.
 User prompt is: `{prompt}`.
@@ -86,7 +87,7 @@ Reply with a single word, nothing else.
 
 
 @log_function
-def generate_story_name(prompt: str) -> str:
+def generate_story_name(prompt: Prompt) -> str:
     ai_prompt = f"""
 You are a text classifier, you group semantically close texts and give each group a short tag.
 Give a tag to user\'s statement: "{prompt}".
@@ -98,7 +99,7 @@ Be as specific as you can, but keep it short.
 
 
 @log_function
-def generate_description(prompt: str) -> str:
+def generate_description(prompt: Prompt) -> str:
     ai_prompt = f"""
 You are a text analyzer. I give you users message, you explain it to me and describe what it is about and what user wants.  
 Users message is:
@@ -110,7 +111,7 @@ Users message is:
 
 
 @log_function
-def create_fact_schema(prompt: str) -> str:
+def create_fact_schema(prompt: Prompt) -> str:
     ai_prompt = f"""
 You are NLQ processor. You extract all useful data from user natural-language prompt and convert it into structured JSON object.
 Write a JSON Typedef schema that can fit all data from user prompt: "{prompt}".
@@ -123,7 +124,7 @@ Format JSON Typedef in the most compact way - without spaces.
 
 
 @log_function
-def explain_prompt(prompt: str) -> str:
+def explain_prompt(prompt: Prompt) -> str:
     ai_prompt = f"""
 User interacts with one NLQ system which converts natural language prompts into database queries.
 User prompt is "{prompt}".
@@ -134,7 +135,7 @@ Explain in a couple of sentences what user wants.
 
 
 @log_function
-def create_elastic_query(prompt: str, story: Story) -> dict:
+def create_elastic_query(prompt: Prompt, story: Story) -> dict:
     ai_prompt = f"""
 You are NLQ system, you convert user natural language prompts into database queries.
 You are operating ElasticSearch of version 8.6.2. Data is stored in index "facts", documents have this structure:
@@ -153,7 +154,7 @@ For reference: now is {datetime.now()}.
 
 
 @log_function
-def try_create_json_by_schema(prompt: str, schema: str) -> str or None:
+def try_create_json_by_schema(prompt: Prompt, schema: str) -> str or None:
     the_prompt = f"""
 Convert user's prompt to JSON with schema described by JSON Typedef:
 ```

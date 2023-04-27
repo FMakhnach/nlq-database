@@ -15,10 +15,10 @@ def create_memories_index(es: Elasticsearch):
     }
     mappings = {
         "properties": {
-            "user_id": {"type": "text"},
-            "is_users": {"type": "boolean"},
+            "conversation_id": {"type": "text"},
+            "is_user_message": {"type": "boolean"},
             "moment": {"type": "date"},
-            "memory": {"type": "text"},
+            "message": {"type": "text"},
             "embedding": {
                 "type": "dense_vector",
                 "dims": 384,
@@ -63,6 +63,7 @@ def create_facts_index(es: Elasticsearch):
     }
     recreate_index(es, index='stories', settings=settings, mappings=mappings)
 
+
 def create_openai_calls_logs_index(es: Elasticsearch):
     settings = {
         "number_of_shards": NUMBER_OF_SHARDS,
@@ -89,10 +90,10 @@ def create_indices():
 
     data = client.info()
     print(data)
-    # create_memories_index(client)
-    create_stories_index(client)
+    create_memories_index(client)
+    #create_stories_index(client)
     # create_facts_index(client)
-    create_openai_calls_logs_index(client)
+    #create_openai_calls_logs_index(client)
 
 
 if __name__ == '__main__':

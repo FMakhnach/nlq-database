@@ -2,8 +2,9 @@ import os
 from telegram import Update
 from telegram.ext import filters, MessageHandler, ApplicationBuilder, CommandHandler, ContextTypes
 
-from archie.ml.audio import try_recognize_text_from_ogg
 from archie.app.conversation import Conversation
+from archie.models import ConversationId, Prompt
+from archie.ml.audio import try_recognize_text_from_ogg
 
 tg_token = '6203226914:AAHsTEQnref0a4kdF7o0sg3Ba3yQtIdWRus'
 api_url = 'http://127.0.0.1:5000/'
@@ -11,7 +12,7 @@ api_url = 'http://127.0.0.1:5000/'
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.message.text
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Your message is: {message}")
+    await context.bot.respond(chat_id=update.effective_chat.id, text=f"Your message is: {message}")
 
 
 async def handle_text_msg(update: Update, context: ContextTypes.DEFAULT_TYPE, request_type: str = None):
@@ -19,8 +20,11 @@ async def handle_text_msg(update: Update, context: ContextTypes.DEFAULT_TYPE, re
     user_id = str(update.effective_user.id)
     chat_id = update.effective_chat.id
     try:
-        response = Conversation(user_id).send_message(message)
-        await context.bot.send_message(chat_id=chat_id, text=response)
+        conversation_id = ConversationId(user_id) # TODO more generic
+        prompt = Prompt(message)
+        conversation = Conversation(conversation_id)
+        response = conversation.respond(prompt)
+        await context.bot.send_message(chat_id=chat_id, text=response.text)
     except Exception as e:
         await context.bot.send_message(chat_id=chat_id, text=f'Got ERROR: {e}')
 
@@ -42,15 +46,15 @@ async def handle_voice_msg(update: Update, context: ContextTypes.DEFAULT_TYPE):
     file_id = update.message.voice.file_id
     message_text = voice_to_text(file_id, context)
     if message_text is None:
-        await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text='Failed to recognize voice message, please contact developer.')
+        await context.bot.respond(chat_id=update.effective_chat.id,
+                                  text='Failed to recognize voice message, please contact developer.')
         return
     update.message.text = message_text
     await handle_text_msg(update, context)
 
 
 async def unknown(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, I don't know that command.")
+    await context.bot.respond(chat_id=update.effective_chat.id, text="Sorry, I don't know that command.")
 
 
 if __name__ == '__main__':

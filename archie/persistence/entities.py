@@ -9,20 +9,16 @@ class ConvertableToDict:
 
 
 @dataclass
-class Memory(ConvertableToDict):
-    user_id: str
-    is_users: bool
+class MemoryEntity(ConvertableToDict):
+    conversation_id: str
+    is_user_message: bool
     moment: datetime
-    memory: str
-
-    def __str__(self):
-        user = 'USER' if self.is_users else 'YOU'
-        return f'[{self.moment.strftime("%B %d, %Y %H:%M:%S")}] {user}: "{self.memory}"'
+    message: str
 
 
 @dataclass
 class MemorySearchResult:
-    memory: Memory
+    memory: MemoryEntity
     score: float
 
 

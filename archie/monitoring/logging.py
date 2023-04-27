@@ -2,9 +2,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 __indent_level = 0
-logging.basicConfig(filename='logs.log', level=logging.INFO)
+#logging.basicConfig(filename='logs.log', level=logging.WARNING, encoding='utf-8')
+#print('INIT LOGGING')
 
-def log(message: str, level=logging.INFO):
+def log(message: str, level=logging.WARNING):
     indent = '  ' * __indent_level
     logger.log(level, indent + message.replace('\n', '\n' + indent))
 

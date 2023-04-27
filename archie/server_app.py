@@ -38,7 +38,7 @@ def send():
     user_id = request.form['user'] if 'user' in request.form else 0
 
     conversation = Conversation(user_id)
-    response = conversation.send_message(user_message)
+    response = conversation.respond(user_message)
 
     messages.append({"sender": "user", "content": user_message})
     messages.append({"sender": "bot", "content": response})
