@@ -10,6 +10,7 @@ load_dotenv()
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 ARCHIE_SERVER_HOST = os.getenv('ARCHIE_SERVER_HOST')
 FALLBACK_MESSAGE = 'Простите, я не могу вам ответить. Кажется, у меня ведутся какие-то технические работы'
+OPERATION_HINT_COMMANDS = ['ask', 'add', 'upd', 'drop']
 
 
 @dataclass
@@ -27,10 +28,10 @@ class ArchieClient:
     def __init__(self, host):
         self.host = host
 
-    def query(self, message: str, user: str) -> QueryResponse:
+    def query(self, message: str, user: str, op_hint: str | None = None) -> QueryResponse:
         endpoint = '/v1/query'
         url = self.host + endpoint
-        body = {'message': message, 'user': user}
+        body = {'message': message, 'user': user, 'op_hint': op_hint}
         response = requests.post(url, body)
         if response.status_code == 200:
             response.encoding = 'utf-8'
@@ -70,12 +71,30 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text=greet)
 
 
-async def handle_text_msg(update: Update, context: ContextTypes.DEFAULT_TYPE, request_type: str = None):
+async def handle_text_msg(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.message.text
     user = str(update.effective_user.id)
     chat_id = update.effective_chat.id
     try:
         response = archie_client.query(message, user)
+        await context.bot.send_message(chat_id=chat_id, text=response.response)
+    except Exception as e:
+        print(e)
+        await context.bot.send_message(chat_id=chat_id, text=FALLBACK_MESSAGE)
+
+
+async def handle_text_msg_with_op_hint(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    message_raw = update.message.text
+    space_pos = message_raw.find(' ')
+    if space_pos == -1:
+        return
+    op_hint = message_raw[1:space_pos]
+    message_payload = message_raw[(space_pos + 1):]
+
+    user = str(update.effective_user.id)
+    chat_id = update.effective_chat.id
+    try:
+        response = archie_client.query(message_payload, user, op_hint)
         await context.bot.send_message(chat_id=chat_id, text=response.response)
     except Exception as e:
         print(e)
@@ -112,10 +131,15 @@ if __name__ == '__main__':
     start_handler = CommandHandler('start', start)
     application.add_handler(start_handler)
 
-    # Actual text requests
+    # Actual text messages
     request_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), handle_text_msg)
     application.add_handler(request_handler)
 
+    # Unknown commands
+    op_hint_handler = CommandHandler(OPERATION_HINT_COMMANDS, handle_text_msg_with_op_hint)
+    application.add_handler(op_hint_handler)
+
+    # Voice messages
     voice_handler = MessageHandler(filters.VOICE, handle_voice_msg)
     application.add_handler(voice_handler)
 

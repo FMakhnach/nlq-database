@@ -1,7 +1,7 @@
 # TODO list
 
 ### General
-* Operation hints
+* Conversation & User interconnection
 * (future) Language service
 * (future) Image handler (tag, save, query)
 * (future) Self-hosted AI as much as possible
@@ -24,6 +24,8 @@
 ### Server
 * Swagger
 * Restrict message size
+* Add created_at to facts and stories
+* Data encryption
 
 ### Telegram client
 * Retries
@@ -33,3 +35,4 @@
 * Larger dataset
 
 ### DONE
+* [2023-05-04] Operation hints

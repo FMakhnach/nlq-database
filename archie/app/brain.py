@@ -1,22 +1,13 @@
 from datetime import datetime, timedelta
-from enum import Enum
 import json
 
 from archie.app.brain_helpers import *
 import archie.external.openai_client as openai
-from archie.models import UserQuery, GeneratedResponse
+from archie.models import GeneratedResponse, QueryClass, UserQuery
 from archie.monitoring.logging import log_function, log
 from archie.persistence.entities import Story
 import archie.utilities.text as text_utils
 import archie.utilities.datetime_utils as dt
-
-
-class QueryClass(Enum):
-    NOTHING = 1
-    SELECT = 2
-    INSERT = 3
-    UPDATE = 4
-    DELETE = 5
 
 
 @log_function
@@ -79,28 +70,33 @@ def is_question(query: UserQuery) -> bool:
 # TODO: fit model
 @log_function
 def classify_query(query: UserQuery) -> QueryClass:
-    prompt = f"""
-You are NLQ processor. You convert user's natural language message into a database query. First, you need to define, what operation to perform.
-User query is: `{query.text}`.
-If user tells us a fact / a statement / a piece of info we can store, reply with 'insert'.
-If user asks to amend some previous information that he gave, reply with 'update'.
-If user asks to delete some previous information, reply with 'delete'.
-If user asks a question, where the answer implies using some previously given information, reply with 'select'.
-Reply with a single word, nothing else.
-"""
-    response = openai.ask(prompt, task_difficulty=openai.TaskDifficulty.HARD)
-    response = text_utils.extract_phrase(response.text)
-    if response == 'nothing':
-        return QueryClass.NOTHING
-    if response == 'select':
-        return QueryClass.SELECT
-    if response == 'insert':
-        return QueryClass.INSERT
-    if response == 'update':
-        return QueryClass.UPDATE
-    if response == 'delete':
-        return QueryClass.DELETE
-    raise Exception(f'Unexpected query class "{response}"')
+    if is_question(query):
+        return QueryClass.ASK
+    else:
+        return QueryClass.ADD
+
+#     prompt = f"""
+# You are NLQ processor. You convert user's natural language message into a database query. First, you need to define, what operation to perform.
+# User query is: `{query.text}`.
+# If user tells us a fact / a statement / a piece of info we can store, reply with 'insert'.
+# If user asks to amend some previous information that he gave, reply with 'update'.
+# If user asks to delete some previous information, reply with 'delete'.
+# If user asks a question, where the answer implies using some previously given information, reply with 'select'.
+# Reply with a single word, nothing else.
+# """
+#     response = openai.ask(prompt, task_difficulty=openai.TaskDifficulty.HARD)
+#     response = text_utils.extract_phrase(response.text)
+#     if response == 'nothing':
+#         return QueryClass.NOTHING
+#     if response == 'select':
+#         return QueryClass.ASK
+#     if response == 'insert':
+#         return QueryClass.ADD
+#     if response == 'update':
+#         return QueryClass.UPD
+#     if response == 'delete':
+#         return QueryClass.DROP
+#     raise Exception(f'Unexpected query class "{response}"')
 
 
 @log_function

@@ -3,7 +3,7 @@ import json
 
 import archie.app.brain as brain
 import archie.mappings as mappings
-from archie.models import ConversationId, GeneratedResponse, Memory, UserQuery
+from archie.models import ConversationId, GeneratedResponse, Memory, QueryClass, UserQuery
 from archie.monitoring.logging import log, log_wrap_function_call, log_function
 import archie.persistence.facts_repository as facts_repo
 import archie.persistence.memories_repository as memories_repo
@@ -31,10 +31,19 @@ class Conversation:
 
     @log_function
     def generate_response(self, query: UserQuery) -> GeneratedResponse:
-        if brain.is_question(query):
+        query_class = query.operation_hint if query.operation_hint else brain.classify_query(query)
+        if query_class == QueryClass.ASK:
             return self.answer_question(query)
-        else:
+        elif query_class == QueryClass.ADD:
             return self.process_statement(query)
+        elif query_class == QueryClass.UPD:
+            return GeneratedResponse(f'Unsupported operation: {query.operation_hint}')  # TODO
+        elif query_class == QueryClass.DROP:
+            return GeneratedResponse(f'Unsupported operation: {query.operation_hint}')  # TODO
+        elif query_class == QueryClass.NOTHING:
+            return GeneratedResponse(f'Unsupported operation: {query.operation_hint}')  # TODO
+        else:
+            return GeneratedResponse(f'Unsupported operation: {query.operation_hint}')  # TODO
 
     @log_function
     def answer_question(self, query: UserQuery) -> GeneratedResponse:
