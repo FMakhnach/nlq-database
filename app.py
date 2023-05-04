@@ -6,30 +6,6 @@ from archie.ml.audio import try_recognize_text_from_audio
 from archie.models import ConversationId, UserQuery
 from archie.monitoring.logging import log
 
-# > Features
-# image tagging and saving
-
-# > Application improvements
-# [UNNECESSARY] user authentication
-# [DONE]: persistent storage
-# [DONE]: logging
-# [DONE]: configuration
-# TODO: docker
-# TODO: message sizes restriction
-# TODO: degrade gracefully on exceptions
-
-# > AI improvements
-# TODO: make it not bullshit (impossible)
-# [DONE]: last messages history
-# [DONE]: semantic search
-# [DONE]: embeddings search threshold
-# TODO: multilanguage
-# [DONE]: memory time relation
-# TODO: update/delete operations
-# TODO: aggregation questions
-# TODO: identify general questions
-# TODO: remove duplicate messages (relevant and memory)
-
 app = Flask(__name__)
 
 FALLBACK_MESSAGE = 'Простите, у меня произошла какая-то ошибка и я не смог обработать твой запрос.'

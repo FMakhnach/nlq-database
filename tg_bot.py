@@ -12,10 +12,6 @@ ARCHIE_SERVER_HOST = os.getenv('ARCHIE_SERVER_HOST')
 FALLBACK_MESSAGE = 'Простите, я не могу вам ответить. Кажется, у меня ведутся какие-то технические работы'
 
 
-# TODO
-# retries policy
-# graceful degradation (setup phrases for error on serverside)
-
 @dataclass
 class QueryResponse:
     response: str
@@ -68,10 +64,10 @@ archie_client = ArchieClient(ARCHIE_SERVER_HOST)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    message = update.message.text
     greet = """Hello! My name is Archie and I am a Memory Assistant bot. How can I help you?
-Привет! Меня зовут Archie и я помогу вам с хранением вашей информации"""
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Your message is: {message}")
+
+Привет! Меня зовут Арчи и я помогу вам с хранением вашей информации"""
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=greet)
 
 
 async def handle_text_msg(update: Update, context: ContextTypes.DEFAULT_TYPE, request_type: str = None):
