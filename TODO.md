@@ -7,14 +7,6 @@
 * (future) Image handler (tag, save, query)
 * (future) Self-hosted AI as much as possible
 
-### Infra
-
-* Local single-script run
-    * Windows
-    * Mac
-    * Linux
-* Gitlab CI (deployment)
-
 ### Monitoring, testing
 
 * Trace OpenAI requests
@@ -46,5 +38,6 @@
 
 ### DONE
 
+* [2023-05-09] Gitlab CI (deployment)
 * [2023-05-07] Remove duplicate messages (relevant and memory)
 * [2023-05-04] Operation hints
