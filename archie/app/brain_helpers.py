@@ -12,18 +12,26 @@ def prepare_last_memories_str(last_memories: list[Memory]) -> str or None:
     return last_memories_text
 
 
+def exclude_last_memories_from_relevant_memories(
+        relevant_memories: list[Memory],
+        last_memories: list[Memory]
+) -> list[Memory]:
+    last_memories_ids = set(obj.id for obj in last_memories)
+    return [memory for memory in relevant_memories if memory.id not in last_memories_ids]
+
+
 def prepare_relevant_memories_str(relevant_memories: list[Memory]) -> str or None:
     if relevant_memories is not None and len(relevant_memories) > 0:
         other_memories = ''.join(['\n' + memory_to_dialog_str(m) for m in relevant_memories])
         relevant_memories_text = f"""
-When Human sent Archie his last message, Archie recalled some most relevant previous Human messages:
+Archie recalled some previous Human messages, most relevant to the last Human's request:
 ```
 {other_memories}
 ```
 """
     else:
         relevant_memories_text = """
-When Human send Archie his last message, he found nothing relevant in his data storage. Most probably, it is a new topic.
+In his long-term memory Archie found nothing corresponding to the last Human's request.
 """
 
     return relevant_memories_text
@@ -34,7 +42,7 @@ def concat_memories(memories: list[Memory]) -> str:
 
 
 def memory_to_dialog_str(memory: Memory):
-    moment_str = dt.to_str(memory.moment)
+    moment_str = dt.to_str(memory.created_at)
     author_str = text_author_type_to_dialog_str(memory.author)
     return f'[{moment_str}] {author_str}: {memory.text}'
 

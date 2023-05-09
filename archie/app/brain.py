@@ -5,7 +5,7 @@ from archie.app.brain_helpers import *
 import archie.external.openai_client as openai
 from archie.models import GeneratedResponse, QueryClass, UserQuery
 from archie.monitoring.logging import log_function, log
-from archie.persistence.entities import Story
+from archie.persistence.entities import StoryEntity
 import archie.utilities.text as text_utils
 import archie.utilities.datetime_utils as dt
 
@@ -20,7 +20,9 @@ def build_answer_to_question(
     now_but_later = dt.to_str(datetime.now() + timedelta(seconds=5))
 
     last_memories_text = prepare_last_memories_str(last_memories)
-    relevant_memories_text = prepare_relevant_memories_str(relevant_memories)
+    # To not repeat the same messages twice
+    relevant_memories_filtered = exclude_last_memories_from_relevant_memories(relevant_memories, last_memories)
+    relevant_memories_text = prepare_relevant_memories_str(relevant_memories_filtered)
 
     prompt = f"""
 Archie is a memory-oriented large language model trained by OpenAI.
@@ -74,6 +76,7 @@ def classify_query(query: UserQuery) -> QueryClass:
         return QueryClass.ASK
     else:
         return QueryClass.ADD
+
 
 #     prompt = f"""
 # You are NLQ processor. You convert user's natural language message into a database query. First, you need to define, what operation to perform.
@@ -148,11 +151,11 @@ Explain in a couple of sentences what user wants.
 
 
 @log_function
-def create_elastic_query(query: UserQuery, story: Story) -> dict:
+def create_elastic_query(query: UserQuery, story: StoryEntity) -> dict:
     prompt = f"""
 You are NLQ system, you convert user natural language messages into database queries.
 You are operating ElasticSearch of version 8.6.2. Data is stored in index "facts", documents have this structure:
-{{ "conversation_id": "{story.conversation_id}", "story_key": "{story.key}", "data": {{}} }}
+{{ "conversation_id": "{story.conversation_id}", "story_id": "{story.id}", "data": {{}} }}
 where "data" has structure described by the following Typedef:
 ```
 {story.schema}

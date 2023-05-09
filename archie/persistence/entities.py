@@ -1,5 +1,6 @@
 from dataclasses import dataclass, asdict
 from datetime import datetime
+from uuid import UUID, uuid4 as uuid
 
 
 @dataclass
@@ -11,9 +12,11 @@ class ConvertableToDict:
 @dataclass
 class MemoryEntity(ConvertableToDict):
     conversation_id: str
-    is_user_message: bool
-    moment: datetime
-    message: str
+    is_user_text: bool
+    text: str
+
+    id: UUID = uuid()
+    created_at: datetime = datetime.now()
 
 
 @dataclass
@@ -23,22 +26,26 @@ class MemorySearchResult:
 
 
 @dataclass
-class Story(ConvertableToDict):
+class StoryEntity(ConvertableToDict):
     conversation_id: str
-    key: str
-    reference: str
-    message: str
+    reference_text: str
     schema: str
+
+    id: UUID = uuid()
+    created_at: datetime = datetime.now()
 
 
 @dataclass
 class StorySearchResult:
-    story: Story
+    story: StoryEntity
     score: float
 
 
 @dataclass
-class Fact(ConvertableToDict):
+class FactEntity(ConvertableToDict):
     conversation_id: str
-    story_key: str
+    story_id: UUID
     data: dict
+
+    id: UUID = uuid()
+    created_at: datetime = datetime.now()

@@ -121,27 +121,24 @@ class Conversation:
             if not try_create:
                 return []
             new_story = self.create_new_story(query)
-            log(f'Created a new story: name="{new_story.key}", schema="{new_story.schema}".')
+            log(f'Created a new story: id="{new_story.id}", schema="{new_story.schema}".')
             search_result = entities.StorySearchResult(new_story, score=1.0)
             return [search_result]
 
     @log_function
-    def create_new_story(self, query: UserQuery) -> entities.Story:
-        story_tag = brain.generate_tag(query)
-        story_reference = query.text  # TODO better? brain.generate_reference_text(query)
+    def create_new_story(self, query: UserQuery) -> entities.StoryEntity:
+        story_reference = query.text  # Maybe something more clever can be used...
         schema = brain.create_fact_schema(query)
-        story = entities.Story(
+        story = entities.StoryEntity(
             conversation_id=self.conversation_id.value,
-            key=story_tag,
-            reference=story_reference,
-            message=query.text,
+            reference_text=story_reference,
             schema=schema,
         )
         stories_repo.add_story(story)
         return story
 
     @log_function
-    def try_extract_and_save_fact(self, query: UserQuery, story: entities.Story) -> entities.Fact or None:
+    def try_extract_and_save_fact(self, query: UserQuery, story: entities.StoryEntity) -> entities.FactEntity or None:
         fact_json = brain.try_create_json_by_schema(query, story.schema)
         if fact_json is None:
             return None
@@ -149,9 +146,9 @@ class Conversation:
         log(f'Got json: "{fact_json}"')
         try:
             fact_data = json.loads(fact_json)
-            fact = entities.Fact(
+            fact = entities.FactEntity(
                 conversation_id=self.conversation_id.value,
-                story_key=story.key,
+                story_id=story.id,
                 data=fact_data,
             )
             facts_repo.add_fact(fact)
@@ -162,19 +159,19 @@ class Conversation:
 
     def save_user_memory(self, user_query: UserQuery, moment: datetime):
         user_req_memory = entities.MemoryEntity(
+            created_at=moment,
             conversation_id=self.conversation_id.value,
-            is_user_message=True,
-            moment=moment,
-            message=user_query.text.strip(),
+            is_user_text=True,
+            text=user_query.text.strip(),
         )
         memories_repo.add_memory(user_req_memory)
 
     def save_ai_response(self, ai_response: GeneratedResponse, moment: datetime):
         ai_resp_memory = entities.MemoryEntity(
+            created_at=moment,
             conversation_id=self.conversation_id.value,
-            is_user_message=False,
-            moment=moment,
-            message=ai_response.text.strip(),
+            is_user_text=False,
+            text=ai_response.text.strip(),
         )
         memories_repo.add_memory(ai_resp_memory)
 

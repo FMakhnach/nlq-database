@@ -2,6 +2,7 @@ venv/
 .idea/
 archive/
 archie_venv/
+scripts/embeddings_comparison/reports/*.xlsx
 
 *.pyc
 __pycache__/

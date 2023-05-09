@@ -30,5 +30,5 @@ def ask(prompt: str,
     }
     response = openai.Completion.create(**params)
     response_text = response.choices[0].text
-    logs.add({'params': params, 'moment': datetime.now(), 'response': response_text})
+    logs.add({'moment': datetime.now(), 'params': params, 'response': response_text})
     return GeneratedResponse(text=response_text)

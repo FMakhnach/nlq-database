@@ -1,13 +1,17 @@
+from datetime import datetime
+from uuid import UUID
+
 from archie.models import ConversationId
 from archie.ml.embedder import get_embedding
 from archie.persistence.elastic import es_client
-from archie.persistence.entities import Story, StorySearchResult
+from archie.persistence.elastic.indices import STORIES_INDEX as INDEX
+from archie.persistence.entities import StoryEntity, StorySearchResult
 
 
-def add_story(story: Story):
+def add_story(story: StoryEntity):
     story_doc = story.to_dict()
-    story_doc['embedding'] = get_embedding(story.key)
-    es_client.index(index='stories', document=story_doc)
+    story_doc['embedding'] = get_embedding(story.reference_text)
+    es_client.index(index=INDEX, document=story_doc)
 
 
 def search_relevant_stories(
@@ -32,7 +36,7 @@ def search_relevant_stories(
             "num_candidates": 100,
         },
     }
-    results = es_client.search(index="stories", body=es_query)["hits"]["hits"]
+    results = es_client.search(index=INDEX, body=es_query)["hits"]["hits"]
     stories = [
         StorySearchResult(
             story=to_story(result['_source']),
@@ -43,11 +47,11 @@ def search_relevant_stories(
     return stories
 
 
-def to_story(source: dict) -> Story:
-    return Story(
+def to_story(source: dict) -> StoryEntity:
+    return StoryEntity(
+        id=UUID(source['id']),
+        created_at=datetime.fromisoformat(source['created_at']),
         conversation_id=source['conversation_id'],
-        key=source['key'],
-        reference=source['reference'],
-        message=source['message'],
+        reference_text=source['reference_text'],
         schema=source['schema'],
     )

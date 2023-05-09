@@ -1,6 +1,8 @@
 from sentence_transformers import SentenceTransformer
 
-embedder = SentenceTransformer('all-MiniLM-L6-v2')
+EMBEDDER_MODEL = 'paraphrase-multilingual-mpnet-base-v2'
+EMBEDDER_DIMS = 768
+embedder = SentenceTransformer(EMBEDDER_MODEL)
 
 
 def get_embedding(text):

@@ -1,15 +1,17 @@
 from datetime import datetime
+from uuid import UUID
 
 from archie.models import ConversationId
 from archie.ml.embedder import get_embedding
 from archie.persistence.elastic import es_client
+from archie.persistence.elastic.indices import MEMORIES_INDEX as INDEX
 from archie.persistence.entities import MemoryEntity, MemorySearchResult
 
 
 def add_memory(memory: MemoryEntity) -> None:
     memory_doc = memory.to_dict()
-    memory_doc['embedding'] = get_embedding(memory.message)
-    es_client.index(index='memories', document=memory_doc)
+    memory_doc['embedding'] = get_embedding(memory.text)
+    es_client.index(index=INDEX, document=memory_doc)
 
 
 def get_last_memories(conversation_id: ConversationId, limit: int = 4) -> list[MemoryEntity]:
@@ -24,7 +26,7 @@ def get_last_memories(conversation_id: ConversationId, limit: int = 4) -> list[M
             }
         }
     }
-    results = es_client.search(index="memories", body=es_query)["hits"]["hits"]
+    results = es_client.search(index=INDEX, body=es_query)["hits"]["hits"]
     memories = [
         to_memory(result['_source'])
         for result in results
@@ -43,7 +45,7 @@ def search_relevant_memories(
         "query": {
             "bool": {
                 "must": [
-                    {"term": {"is_user_message": True}},
+                    {"term": {"is_user_text": True}},
                     {"match": {"conversation_id": conversation_id.value}}
                 ]
             }
@@ -57,11 +59,11 @@ def search_relevant_memories(
             "num_candidates": 100,
         },
     }
-    results = es_client.search(index="memories", body=es_query)["hits"]["hits"]
+    results = es_client.search(index=INDEX, body=es_query)["hits"]["hits"]
     memories = [
         MemorySearchResult(
             to_memory(result['_source']),
-            score=result['_score']
+            score=result['_score'],
         )
         for result in results
     ]
@@ -70,8 +72,9 @@ def search_relevant_memories(
 
 def to_memory(source: dict) -> MemoryEntity:
     return MemoryEntity(
+        id=UUID(source['id']),
+        created_at=datetime.fromisoformat(source['created_at']),
         conversation_id=source['conversation_id'],
-        is_user_message=bool(source['is_user_message']),
-        moment=datetime.fromisoformat(source['moment']),
-        message=source['message'],
+        is_user_text=bool(source['is_user_text']),
+        text=source['text'],
     )

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
+from uuid import UUID
 
 
 class QueryClass(Enum):
@@ -44,7 +45,8 @@ class TextAuthorType(Enum):
 
 @dataclass
 class Memory:
+    id: UUID
+    created_at: datetime
     conversation_id: ConversationId
-    moment: datetime
     author: TextAuthorType
     text: str

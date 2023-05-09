@@ -3,6 +3,7 @@ import logging
 logger = logging.getLogger(__name__)
 __indent_level = 0
 
+
 def log(message: str, level=logging.WARNING):
     indent = '  ' * __indent_level
     logger.log(level, indent + message.replace('\n', '\n' + indent))

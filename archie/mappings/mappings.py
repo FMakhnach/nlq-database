@@ -3,12 +3,13 @@ from archie.persistence.entities import MemoryEntity
 
 
 def to_memory_model(entity: MemoryEntity) -> Memory:
-    author = TextAuthorType.User if entity.is_user_message else TextAuthorType.System
+    author = TextAuthorType.User if entity.is_user_text else TextAuthorType.System
     return Memory(
+        id=entity.id,
+        created_at=entity.created_at,
         conversation_id=ConversationId(entity.conversation_id),
-        moment=entity.moment,
         author=author,
-        text=entity.message
+        text=entity.text,
     )
 
 

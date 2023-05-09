@@ -1,4 +1,5 @@
 from flask import Flask, request
+import traceback
 from werkzeug.datastructures import FileStorage
 
 from archie.app.conversation import Conversation
@@ -9,7 +10,7 @@ from archie.utilities import dict_utils
 
 app = Flask(__name__)
 
-FALLBACK_MESSAGE = 'Простите, у меня произошла какая-то ошибка и я не смог обработать твой запрос.'
+FALLBACK_MESSAGE = 'Простите, у меня произошла ошибка и я не смог обработать Ваш запрос.'
 
 
 @app.route("/v1/query", methods=["POST"])
@@ -26,6 +27,7 @@ def process_text_query():
         }
     except Exception as e:
         log(str(e))
+        print(traceback.format_exc())
         # TODO graceful degradation
         return {
             'response': FALLBACK_MESSAGE,
