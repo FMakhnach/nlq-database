@@ -27,7 +27,7 @@ def process_text_query():
         }
     except Exception as e:
         log(str(e))
-        print(traceback.format_exc())
+        log(traceback.format_exc())
         # TODO graceful degradation
         return {
             'response': FALLBACK_MESSAGE,
