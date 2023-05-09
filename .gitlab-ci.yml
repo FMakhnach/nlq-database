@@ -4,5 +4,5 @@ include:
 
 variables:
   service_name: "talkql-server"
-  port: "7824"
+  port: "5010"
   project_url: "registry.gitlab.com/n2283/nql-project/talkql"
