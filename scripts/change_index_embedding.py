@@ -1,6 +1,6 @@
 from sentence_transformers import SentenceTransformer
 
-from archie.persistence.elastic import es_client as es
+from talkql.persistence.elastic import es_client as es
 
 # DRAFT CODE
 

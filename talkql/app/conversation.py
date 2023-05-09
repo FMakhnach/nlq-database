@@ -1,14 +1,14 @@
 from datetime import datetime
 import json
 
-import archie.app.brain as brain
-import archie.mappings as mappings
-from archie.models import ConversationId, GeneratedResponse, Memory, QueryClass, UserQuery
-from archie.monitoring.logging import log, log_wrap_function_call, log_function
-import archie.persistence.facts_repository as facts_repo
-import archie.persistence.memories_repository as memories_repo
-import archie.persistence.stories_repository as stories_repo
-import archie.persistence.entities as entities
+import talkql.app.brain as brain
+import talkql.mappings as mappings
+from talkql.models import ConversationId, GeneratedResponse, Memory, QueryClass, UserQuery
+from talkql.monitoring.logging import log, log_wrap_function_call, log_function
+import talkql.persistence.facts_repository as facts_repo
+import talkql.persistence.memories_repository as memories_repo
+import talkql.persistence.stories_repository as stories_repo
+import talkql.persistence.entities as entities
 
 
 class Conversation:

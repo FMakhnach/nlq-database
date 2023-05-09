@@ -1,11 +1,11 @@
 from datetime import datetime
 from uuid import UUID
 
-from archie.models import ConversationId
-from archie.ml.embedder import get_embedding
-from archie.persistence.elastic import es_client
-from archie.persistence.elastic.indices import STORIES_INDEX as INDEX
-from archie.persistence.entities import StoryEntity, StorySearchResult
+from talkql.models import ConversationId
+from talkql.ml.embedder import get_embedding
+from talkql.persistence.elastic import es_client
+from talkql.persistence.elastic.indices import STORIES_INDEX as INDEX
+from talkql.persistence.entities import StoryEntity, StorySearchResult
 
 
 def add_story(story: StoryEntity):

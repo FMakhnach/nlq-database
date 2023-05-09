@@ -2,11 +2,11 @@ from flask import Flask, request
 import traceback
 from werkzeug.datastructures import FileStorage
 
-from archie.app.conversation import Conversation
-from archie.ml.audio import try_recognize_text_from_audio
-from archie.models import ConversationId, QueryClass, UserQuery
-from archie.monitoring.logging import log
-from archie.utilities import dict_utils
+from talkql.app.conversation import Conversation
+from talkql.ml.audio import try_recognize_text_from_audio
+from talkql.models import ConversationId, QueryClass, UserQuery
+from talkql.monitoring.logging import log
+from talkql.utilities import dict_utils
 
 app = Flask(__name__)
 

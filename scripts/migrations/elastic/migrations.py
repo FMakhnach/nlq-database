@@ -1,7 +1,7 @@
 from elasticsearch.helpers import reindex
 
-from archie.persistence.elastic import es_client as es
-from archie.persistence.elastic.indices import *
+from talkql.persistence.elastic import es_client as es
+from talkql.persistence.elastic.indices import *
 
 NUMBER_OF_SHARDS = 1
 DEFAULT_SETTINGS = {

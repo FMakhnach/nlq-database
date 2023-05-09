@@ -1,6 +1,6 @@
-from archie.persistence.elastic import es_client
-from archie.persistence.elastic.indices import FACTS_INDEX as INDEX
-from archie.persistence.entities import FactEntity
+from talkql.persistence.elastic import es_client
+from talkql.persistence.elastic.indices import FACTS_INDEX as INDEX
+from talkql.persistence.entities import FactEntity
 
 
 def add_fact(fact: FactEntity):

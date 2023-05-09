@@ -1,13 +1,13 @@
 from datetime import datetime, timedelta
 import json
 
-from archie.app.brain_helpers import *
-import archie.external.openai_client as openai
-from archie.models import GeneratedResponse, QueryClass, UserQuery
-from archie.monitoring.logging import log_function, log
-from archie.persistence.entities import StoryEntity
-import archie.utilities.text as text_utils
-import archie.utilities.datetime_utils as dt
+from talkql.app.brain_helpers import *
+import talkql.external.openai_client as openai
+from talkql.models import GeneratedResponse, QueryClass, UserQuery
+from talkql.monitoring.logging import log_function, log
+from talkql.persistence.entities import StoryEntity
+import talkql.utilities.text as text_utils
+import talkql.utilities.datetime_utils as dt
 
 
 @log_function

@@ -1,7 +1,7 @@
 import pytest
 
-import archie.app.brain as brain
-from archie.models import UserQuery
+import talkql.app.brain as brain
+from talkql.models import UserQuery
 
 
 @pytest.mark.parametrize(

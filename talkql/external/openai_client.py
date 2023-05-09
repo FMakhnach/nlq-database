@@ -3,8 +3,8 @@ from enum import Enum
 import openai
 import os
 
-from archie.models import GeneratedResponse
-import archie.persistence.openai_calls_logs_repository as logs
+from talkql.models import GeneratedResponse
+import talkql.persistence.openai_calls_logs_repository as logs
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 

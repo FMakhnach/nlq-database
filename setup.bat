@@ -1,6 +1,6 @@
 @echo off
 
-set VENV_NAME=archie_venv
+set VENV_NAME=venv
 
 echo Creating virtual environment...
 python -m venv %VENV_NAME%

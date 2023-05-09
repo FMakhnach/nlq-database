@@ -1,5 +1,5 @@
-from archie.app.conversation import Conversation
-from archie.models import ConversationId
+from talkql.app.conversation import Conversation
+from talkql.models import ConversationId
 from testcases import testcases
 
 logger = print

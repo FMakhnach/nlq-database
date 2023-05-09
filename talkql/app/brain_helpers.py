@@ -1,5 +1,5 @@
-from archie.models import Memory, TextAuthorType
-import archie.utilities.datetime_utils as dt
+from talkql.models import Memory, TextAuthorType
+import talkql.utilities.datetime_utils as dt
 
 
 def prepare_last_memories_str(last_memories: list[Memory]) -> str or None:

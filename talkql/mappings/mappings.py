@@ -1,5 +1,5 @@
-from archie.models import ConversationId, Memory, TextAuthorType
-from archie.persistence.entities import MemoryEntity
+from talkql.models import ConversationId, Memory, TextAuthorType
+from talkql.persistence.entities import MemoryEntity
 
 
 def to_memory_model(entity: MemoryEntity) -> Memory:
