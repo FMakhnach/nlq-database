@@ -101,4 +101,4 @@ def extract_operation_hint_from_request(request_form: dict[str, str]) -> QueryCl
 
 if __name__ == "__main__":
     print('Starting server application')
-    app.run(debug=True)
+    app.run(port=80)
