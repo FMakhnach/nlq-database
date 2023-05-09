@@ -1,14 +1,15 @@
 from flask import Flask, request
+import logging
 import traceback
 from werkzeug.datastructures import FileStorage
 
 from talkql.app.conversation import Conversation
 from talkql.ml.audio import try_recognize_text_from_audio
 from talkql.models import ConversationId, QueryClass, UserQuery
-from talkql.monitoring.logging import log
 from talkql.utilities import dict_utils
 
 app = Flask(__name__)
+logger = logging.getLogger(__name__)
 
 FALLBACK_MESSAGE = 'Простите, у меня произошла ошибка и я не смог обработать Ваш запрос.'
 
@@ -26,8 +27,8 @@ def process_text_query():
             'response': response.text,
         }
     except Exception as e:
-        log(str(e))
-        log(traceback.format_exc())
+        logger.error(str(e))
+        logger.error(traceback.format_exc())
         # TODO graceful degradation
         return {
             'response': FALLBACK_MESSAGE,
@@ -48,7 +49,8 @@ def process_audio_query():
             'response': response.text,
         }
     except Exception as e:
-        log(str(e))
+        logger.error(str(e))
+        logger.error(traceback.format_exc())
         # TODO graceful degradation
         return {
             'response': FALLBACK_MESSAGE,
