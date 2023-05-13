@@ -154,7 +154,7 @@ Explain in a couple of sentences what user wants.
 def create_elastic_query(query: UserQuery, story: StoryEntity) -> dict:
     prompt = f"""
 You are NLQ system, you convert user natural language messages into database queries.
-You are operating ElasticSearch of version 8.6.2. Data is stored in index "facts", documents have this structure:
+You are operating ElasticSearch of version 7.14.2. Data is stored in index "facts", documents have this structure:
 {{ "conversation_id": "{story.conversation_id}", "story_id": "{story.id}", "data": {{}} }}
 where "data" has structure described by the following Typedef:
 ```

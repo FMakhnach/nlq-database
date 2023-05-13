@@ -21,20 +21,25 @@ def search_relevant_stories(
     reference_embedding = get_embedding(reference_text)
     es_query = {
         "query": {
-            "bool": {
-                "must": {
-                    "match": {"conversation_id": conversation_id.value}
+            "script_score": {
+                "query": {
+                    "match_all": {}
+                    # "bool": {
+                    #     "must": {
+                    #         "match": {"conversation_id": conversation_id.value}
+                    #     },
+                    # },
                 },
+                "script": {
+                    "source": f"cosineSimilarity(params.query_vector, 'embedding') + 1.0",
+                    "params": {
+                        "query_vector": reference_embedding
+                    }
+                }
             }
         },
         "min_score": threshold,
         "size": 1,
-        "knn": {
-            "field": "embedding",
-            "query_vector": reference_embedding,
-            "k": 10,
-            "num_candidates": 100,
-        },
     }
     results = es_client.search(index=INDEX, body=es_query)["hits"]["hits"]
     stories = [

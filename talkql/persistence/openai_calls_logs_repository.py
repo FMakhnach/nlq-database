@@ -3,4 +3,4 @@ from talkql.persistence.elastic.indices import OPENAI_CALLS_LOGS_INDEX as INDEX
 
 
 def add(log: dict):
-    es_client.index(index=INDEX, document=log)
+    es_client.index(index=INDEX, body=log)

@@ -12,7 +12,11 @@ DEFAULT_SETTINGS = {
 def create_initial_index(name: str, mappings: dict):
     alias = name
     index_name = alias + '_v0'
-    es.indices.create(index=index_name, settings=DEFAULT_SETTINGS, mappings=mappings)
+    body = {
+        'mappings': mappings,
+        'settings': DEFAULT_SETTINGS,
+    }
+    es.indices.create(index=index_name, body=body)
     es.indices.put_alias(index=index_name, name=alias)
 
 

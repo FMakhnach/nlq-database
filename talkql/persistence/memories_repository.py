@@ -48,16 +48,21 @@ def search_relevant_memories(
                     {"term": {"is_user_text": True}},
                     {"match": {"conversation_id": conversation_id.value}}
                 ]
+            },
+            "script_score": {
+                "query": {
+                    "match_all": {}
+                },
+                "script": {
+                    "source": f"cosineSimilarity(params.query_vector, 'embedding') + 1.0",
+                    "params": {
+                        "query_vector": reference_embedding
+                    }
+                }
             }
         },
         "min_score": threshold,
         "size": limit,
-        "knn": {
-            "field": "embedding",
-            "query_vector": reference_embedding,
-            "k": 10,
-            "num_candidates": 100,
-        },
     }
     results = es_client.search(index=INDEX, body=es_query)["hits"]["hits"]
     memories = [
